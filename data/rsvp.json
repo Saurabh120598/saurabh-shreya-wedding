@@ -1,0 +1,17 @@
+[
+  {
+    "id": "rsvp-1790277436995",
+    "submittedAt": "2026-09-24T19:17:16.995Z",
+    "name": "Saurabh Srivastava",
+    "email": "srivastav.saurabh8@gmail.com",
+    "phone": "9598888852",
+    "guestCount": 2,
+    "attendingEvents": [
+      "mehendi",
+      "sangeet",
+      "haldi",
+      "wedding"
+    ],
+    "foodPreference": "vegetarian"
+  }
+]

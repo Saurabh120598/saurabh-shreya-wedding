@@ -1,0 +1,6 @@
+{
+  "name": "Saurabh & Shreya's Wedding Celebration",
+  "description": "Official wedding celebration website for Saurabh Srivastava weds Shreya featuring interactive scratch-card invitation, VIP QR pass, ceremony itineraries, photo gallery, wedding hotline, and live RSVP.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
