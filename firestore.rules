@@ -1,0 +1,31 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // No date/time conditions anywhere in these rules, so they never expire.
+
+    // RSVPs: guests can submit; the admin dashboard reads them client-side.
+    match /rsvp/{id} {
+      allow create: if true;
+      allow read: if true;
+      allow update, delete: if false;
+    }
+
+    // Wishes: anyone can read/create; updates may only change "likes".
+    match /wishes/{id} {
+      allow read: if true;
+      allow create: if true;
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes']);
+      allow delete: if false;
+    }
+
+    // Guest photos: anyone can read/create; updates may only change "likes".
+    match /guestPhotos/{id} {
+      allow read: if true;
+      allow create: if true;
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes']);
+      allow delete: if false;
+    }
+
+  }
+}

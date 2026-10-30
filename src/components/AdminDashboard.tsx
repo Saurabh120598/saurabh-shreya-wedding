@@ -101,6 +101,17 @@ function downloadPhoto(url: string, caption: string, index: number) {
   a.click();
 }
 
+// ── Full backup of all data as one JSON file ─────────────────────────────────
+function backupAll(rsvpList: RSVPEntry[], wishes: WishEntry[], photos: PhotoEntry[]) {
+  const data = { exportedAt: new Date().toISOString(), rsvp: rsvpList, wishes, guestPhotos: photos };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `wedding-backup-${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+}
+
 // ── Download ALL photos one by one ───────────────────────────────────────────
 function downloadAllPhotos(photos: PhotoEntry[]) {
   photos.forEach((p, i) => {
@@ -239,6 +250,13 @@ export function AdminDashboard() {
           >
             <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
             Refresh
+          </button>
+          <button
+            onClick={() => backupAll(rsvpList, wishes, photos)}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-stone-600 border border-stone-200 rounded-full hover:bg-stone-50"
+          >
+            <Download className="w-3 h-3" />
+            Backup All Data
           </button>
           <button
             onClick={() => setAuthed(false)}
