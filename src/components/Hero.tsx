@@ -151,7 +151,7 @@ export function Hero({ onOpenRSVP }: { onOpenRSVP: () => void }) {
                   {/* Caption badge at bottom */}
                   <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between text-white text-xs sm:text-sm font-serif">
                     <span className="bg-stone-900/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/20">
-                      Saurabh Srivastava &amp; Shreya
+                      Saurabh &amp; Shreya
                     </span>
                     <span className="bg-rose-500/80 backdrop-blur-md px-2.5 py-1 rounded-full text-[11px] font-sans font-medium flex items-center gap-1">
                       <Heart className="w-3 h-3 fill-white" /> Forever &amp; Always

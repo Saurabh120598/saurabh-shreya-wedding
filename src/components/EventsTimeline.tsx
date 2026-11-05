@@ -60,7 +60,7 @@ const CELEBRATION_EVENTS: WeddingEvent[] = [
     description:
       'With the blessings of our elders and the sacred fire as witness, Saurabh and Shreya tie the knot in eternal union amidst chanting Vedic hymns and rose showers.',
     themeColor: 'from-rose-500 to-amber-500',
-    calendarTitle: 'Wedding of Saurabh Srivastava weds Shreya',
+    calendarTitle: 'Wedding of Saurabh weds Shreya',
   },
 ];
 

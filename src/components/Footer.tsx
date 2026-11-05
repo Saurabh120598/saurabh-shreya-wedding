@@ -38,7 +38,7 @@ export function Footer() {
         {/* Bottom Row */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-stone-500 text-center sm:text-left">
           <p className="flex items-center justify-center gap-1.5">
-            <span>Crafted with infinite love for Saurabh Srivastava &amp; Shreya</span>
+            <span>Crafted with infinite love for Saurabh &amp; Shreya</span>
             <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
           </p>
 

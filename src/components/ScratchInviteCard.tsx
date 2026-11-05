@@ -100,7 +100,7 @@ export function ScratchInviteCard() {
 
     ctx.fillStyle = '#7C493D';
     ctx.font = 'italic 15px serif';
-    ctx.fillText('Saurabh Srivastava & Shreya', centerX, centerY - 20);
+    ctx.fillText('Saurabh & Shreya', centerX, centerY - 20);
 
     ctx.fillStyle = '#9E3A4B';
     ctx.font = 'bold 13px sans-serif';
@@ -268,9 +268,9 @@ export function ScratchInviteCard() {
 
   // Google Calendar URL generator (Indian Standard Time: 8:00 PM onwards)
   const getGoogleCalendarUrl = () => {
-    const title = encodeURIComponent('Wedding: Saurabh Srivastava weds Shreya');
+    const title = encodeURIComponent('Wedding: Saurabh weds Shreya');
     const details = encodeURIComponent(
-      'Join us to celebrate the holy wedding ceremony of Saurabh Srivastava and Shreya!\nDress Code: Royal Pastel Ethnic / Festive Indian\nVenue: Bundigarh Resort, Shaheed Path, Lucknow'
+      'Join us to celebrate the holy wedding ceremony of Saurabh and Shreya!\nDress Code: Royal Pastel Ethnic / Festive Indian\nVenue: Bundigarh Resort, Shaheed Path, Lucknow'
     );
     const location = encodeURIComponent('Bundigarh Resort, Shaheed Path, Lucknow, Uttar Pradesh');
     const dates = '20261209T200000/20261210T020000';
@@ -328,7 +328,7 @@ export function ScratchInviteCard() {
                     You Are Cordially Invited to Celebrate
                   </p>
                   <h3 className="text-2xl sm:text-3xl font-serif font-semibold text-stone-900">
-                    Saurabh Srivastava
+                    Saurabh
                   </h3>
                   <div className="font-script text-2xl sm:text-3xl text-rose-500 font-normal">
                     weds
