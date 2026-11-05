@@ -1,10 +1,21 @@
-import { useState, useEffect } from 'react';
-import { Calendar, MapPin, Sparkles, ArrowDown, Heart } from 'lucide-react';
-import heroCoupleImg from '../assets/images/hero_couple_1790261249180.jpg';
+import { useState, useEffect, useRef } from 'react';
+import { Calendar, MapPin, Sparkles, ArrowDown, Heart, ChevronLeft, ChevronRight } from 'lucide-react';
+import couplePhoto1 from '../assets/images/couple_photo_1.png';
+import couplePhoto2 from '../assets/images/couple_photo_2.png';
+import couplePhoto3 from '../assets/images/couple_photo_3.png';
+
+const HERO_PHOTOS = [
+  { id: 0, src: couplePhoto1, label: 'Saurabh & Shreya' },
+  { id: 1, src: couplePhoto2, label: 'Royal Celebrations' },
+  { id: 2, src: couplePhoto3, label: 'Moments of Love' },
+];
 
 export function Hero({ onOpenRSVP }: { onOpenRSVP: () => void }) {
   // Wedding date: December 9, 2026
   const targetDate = new Date('2026-12-09T20:00:00+05:30').getTime();
+
+  const [activePhoto, setActivePhoto] = useState(0);
+  const touchStartXRef = useRef<number | null>(null);
 
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
@@ -34,6 +45,32 @@ export function Hero({ onOpenRSVP }: { onOpenRSVP: () => void }) {
     const interval = setInterval(calculateTime, 1000);
     return () => clearInterval(interval);
   }, [targetDate]);
+
+  const handleNextPhoto = () => {
+    setActivePhoto((prev) => (prev + 1) % HERO_PHOTOS.length);
+  };
+
+  const handlePrevPhoto = () => {
+    setActivePhoto((prev) => (prev - 1 + HERO_PHOTOS.length) % HERO_PHOTOS.length);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartXRef.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartXRef.current === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const diff = touchStartXRef.current - touchEndX;
+    if (Math.abs(diff) > 40) {
+      if (diff > 0) {
+        handleNextPhoto();
+      } else {
+        handlePrevPhoto();
+      }
+    }
+    touchStartXRef.current = null;
+  };
 
   return (
     <section className="relative pt-24 pb-16 md:pt-28 md:pb-24 overflow-hidden bg-gradient-to-b from-[#FFF5F5] via-[#FFFDF9] to-[#FFFDF9]">
@@ -131,52 +168,123 @@ export function Hero({ onOpenRSVP }: { onOpenRSVP: () => void }) {
 
           </div>
 
-          {/* Right Column: Hero Portrait Frame with Cute Accents */}
-          <div className="lg:col-span-6 flex justify-center">
-            <div className="relative max-w-md w-full">
-              
-              {/* Outer decorative polaroid / floral frame */}
-              <div className="relative p-3.5 sm:p-4 bg-white rounded-3xl shadow-[0_12px_40px_rgba(244,114,182,0.12)] border border-rose-100 rotate-1 hover:rotate-0 transition-transform duration-500">
-                <div className="relative aspect-[4/3] sm:aspect-[16/11] rounded-2xl overflow-hidden bg-rose-50">
-                  <img
-                    src={heroCoupleImg}
-                    alt="Saurabh and Shreya wedding celebration portrait"
-                    className="w-full h-full object-cover object-center"
-                    referrerPolicy="no-referrer"
-                  />
-                  
-                  {/* Subtle warm glow overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-stone-900/40 via-transparent to-transparent pointer-events-none" />
+          {/* Right Column: Interactive Multi-Photo Layered Stack Gallery */}
+          <div className="lg:col-span-6 flex flex-col items-center justify-center">
+            <div
+              className="relative max-w-md w-full h-[380px] sm:h-[420px] flex items-center justify-center select-none"
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+            >
+              {HERO_PHOTOS.map((photo, index) => {
+                const isActive = index === activePhoto;
+                // Calculate position relative to active photo
+                const diff = (index - activePhoto + HERO_PHOTOS.length) % HERO_PHOTOS.length;
+                
+                let transformStyle = '';
+                let zIndex = 10;
+                let opacity = 'opacity-80';
 
-                  {/* Caption badge at bottom */}
-                  <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between text-white text-xs sm:text-sm font-serif">
-                    <span className="bg-stone-900/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/20">
-                      Saurabh &amp; Shreya
-                    </span>
-                    <span className="bg-rose-500/80 backdrop-blur-md px-2.5 py-1 rounded-full text-[11px] font-sans font-medium flex items-center gap-1">
-                      <Heart className="w-3 h-3 fill-white" /> Forever &amp; Always
-                    </span>
+                if (diff === 0) {
+                  // Front Active Card
+                  transformStyle = 'translate-x-0 translate-y-0 rotate-0 scale-100';
+                  zIndex = 30;
+                  opacity = 'opacity-100';
+                } else if (diff === 1) {
+                  // Behind right peek
+                  transformStyle = 'translate-x-4 sm:translate-x-6 translate-y-2 rotate-3 sm:rotate-4 scale-95';
+                  zIndex = 20;
+                  opacity = 'opacity-90';
+                } else {
+                  // Behind left peek
+                  transformStyle = '-translate-x-4 sm:-translate-x-6 -translate-y-2 -rotate-3 sm:-rotate-4 scale-90';
+                  zIndex = 10;
+                  opacity = 'opacity-80';
+                }
+
+                return (
+                  <div
+                    key={photo.id}
+                    onClick={() => setActivePhoto(index)}
+                    style={{ zIndex }}
+                    className={`absolute inset-0 p-3 sm:p-4 bg-white rounded-3xl shadow-[0_16px_50px_rgba(244,114,182,0.18)] border border-rose-100 cursor-pointer transition-all duration-500 ease-out transform ${transformStyle} ${opacity} hover:opacity-100`}
+                  >
+                    <div className="relative w-full h-full rounded-2xl overflow-hidden bg-rose-50">
+                      <img
+                        src={photo.src}
+                        alt={`Saurabh and Shreya wedding portrait ${index + 1}`}
+                        className="w-full h-full object-cover object-center pointer-events-none"
+                        referrerPolicy="no-referrer"
+                      />
+
+                      {/* Subtle warm glow overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-stone-900/60 via-transparent to-transparent pointer-events-none" />
+
+                      {/* Caption badge at bottom */}
+                      <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white text-xs sm:text-sm font-serif pointer-events-none">
+                        <span className="bg-stone-900/70 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 text-xs">
+                          {photo.label}
+                        </span>
+                        <span className="bg-rose-500/85 backdrop-blur-md px-2.5 py-1 rounded-full text-[11px] font-sans font-medium flex items-center gap-1">
+                          <Heart className="w-3 h-3 fill-white" /> {index + 1} / {HERO_PHOTOS.length}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Floating stamp on the active front card */}
+                    {isActive && (
+                      <div className="absolute -top-3 -right-2 sm:-right-3 bg-amber-100 border border-amber-300 text-amber-900 text-[11px] font-semibold uppercase tracking-wider px-3 py-1 rounded-full shadow-sm rotate-6 flex items-center gap-1 z-40">
+                        ✨ Saurabh Weds Shreya
+                      </div>
+                    )}
                   </div>
-                </div>
+                );
+              })}
 
-                {/* Floating cute stamp badges */}
-                <div className="absolute -top-3 -right-3 bg-amber-100 border border-amber-300 text-amber-900 text-[11px] font-semibold uppercase tracking-wider px-3 py-1 rounded-full shadow-sm rotate-6 flex items-center gap-1">
-                  ✨ Saurabh Weds Shreya
-                </div>
-              </div>
+              {/* Swipe/Click Controls */}
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); handlePrevPhoto(); }}
+                className="absolute -left-3 sm:-left-5 top-1/2 -translate-y-1/2 z-40 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/90 hover:bg-white text-stone-700 hover:text-rose-600 shadow-md border border-rose-100 flex items-center justify-center transition-all"
+                aria-label="Previous photo"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
 
-              {/* Little anchor scroll prompt */}
-              <div className="flex justify-center pt-4">
-                <a
-                  href="#scratch-invite"
-                  className="flex items-center gap-1 text-xs text-stone-500 hover:text-rose-600 transition-colors"
-                >
-                  <span>Scratch to reveal invitation pass</span>
-                  <ArrowDown className="w-3.5 h-3.5 animate-bounce" />
-                </a>
-              </div>
-
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); handleNextPhoto(); }}
+                className="absolute -right-3 sm:-right-5 top-1/2 -translate-y-1/2 z-40 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/90 hover:bg-white text-stone-700 hover:text-rose-600 shadow-md border border-rose-100 flex items-center justify-center transition-all"
+                aria-label="Next photo"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
             </div>
+
+            {/* Gallery Indicator Dots */}
+            <div className="flex items-center gap-2 mt-4 z-20">
+              {HERO_PHOTOS.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setActivePhoto(idx)}
+                  className={`h-2 rounded-full transition-all ${
+                    activePhoto === idx ? 'w-6 bg-rose-500' : 'w-2 bg-rose-200 hover:bg-rose-300'
+                  }`}
+                  aria-label={`Jump to photo ${idx + 1}`}
+                />
+              ))}
+            </div>
+
+            {/* Little anchor scroll prompt */}
+            <div className="flex justify-center pt-3">
+              <a
+                href="#scratch-invite"
+                className="flex items-center gap-1 text-xs text-stone-500 hover:text-rose-600 transition-colors"
+              >
+                <span>Scratch to reveal invitation pass</span>
+                <ArrowDown className="w-3.5 h-3.5 animate-bounce" />
+              </a>
+            </div>
+
           </div>
 
         </div>
