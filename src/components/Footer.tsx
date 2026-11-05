@@ -49,9 +49,6 @@ export function Footer() {
             <a href="#events" className="hover:text-rose-400 transition-colors">
               Ceremonies
             </a>
-            <a href="#gallery" className="hover:text-rose-400 transition-colors">
-              Gallery
-            </a>
             <a href="#hotlines" className="hover:text-rose-400 transition-colors">
               Hotlines
             </a>

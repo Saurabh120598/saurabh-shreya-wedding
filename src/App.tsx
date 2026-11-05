@@ -3,10 +3,7 @@ import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { ScratchInviteCard } from './components/ScratchInviteCard';
 import { EventsTimeline } from './components/EventsTimeline';
-import { Gallery } from './components/Gallery';
 import { WeddingHotline } from './components/WeddingHotline';
-import { LoveStory } from './components/LoveStory';
-import { WeddingQuiz } from './components/WeddingQuiz';
 import { GuestbookRSVP } from './components/GuestbookRSVP';
 import { Footer } from './components/Footer';
 import { PetalRain } from './components/PetalRain';
@@ -38,17 +35,8 @@ export default function App() {
         {/* Wedding Ceremonies Schedule */}
         <EventsTimeline />
 
-        {/* Curated Photo Gallery & Guest Memory Wall */}
-        <Gallery />
-
         {/* Call Stuff & Wedding Concierge Hotline */}
         <WeddingHotline />
-
-        {/* Love Story Timeline */}
-        <LoveStory />
-
-        {/* Interactive Couple Quiz */}
-        <WeddingQuiz />
 
         {/* Guestbook Wishes & RSVP */}
         <GuestbookRSVP

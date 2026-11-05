@@ -49,12 +49,6 @@ export function Navbar({ petalRain, setPetalRain, onOpenRSVP }: NavbarProps) {
           <a href="#events" className="hover:text-rose-600 transition-colors">
             Ceremonies
           </a>
-          <a href="#gallery" className="hover:text-rose-600 transition-colors">
-            Moments Gallery
-          </a>
-          <a href="#story" className="hover:text-rose-600 transition-colors">
-            Our Journey
-          </a>
           <a href="#hotlines" className="hover:text-rose-600 transition-colors">
             Wedding Hotline
           </a>
