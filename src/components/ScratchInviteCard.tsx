@@ -266,15 +266,15 @@ export function ScratchInviteCard() {
     checkScratchPercentage();
   };
 
-  // Google Calendar URL generator
+  // Google Calendar URL generator (Indian Standard Time: 8:00 PM onwards)
   const getGoogleCalendarUrl = () => {
     const title = encodeURIComponent('Wedding: Saurabh Srivastava weds Shreya');
     const details = encodeURIComponent(
       'Join us to celebrate the holy wedding ceremony of Saurabh Srivastava and Shreya!\nDress Code: Royal Pastel Ethnic / Festive Indian\nVenue: Bundigarh Resort, Shaheed Path, Lucknow'
     );
     const location = encodeURIComponent('Bundigarh Resort, Shaheed Path, Lucknow, Uttar Pradesh');
-    const dates = '20261209T143000Z/20261209T193000Z';
-    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&location=${location}&dates=${dates}`;
+    const dates = '20261209T200000/20261210T020000';
+    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&location=${location}&dates=${dates}&ctz=Asia/Kolkata`;
   };
 
   return (

@@ -71,12 +71,12 @@ export function EventsTimeline() {
     const location = encodeURIComponent(`${ev.venue}, ${ev.address}`);
 
     let dates = '';
-    if (ev.id === 'mehendi') dates = '&dates=20261208T063000Z/20261208T103000Z';
-    else if (ev.id === 'sangeet') dates = '&dates=20261208T123000Z/20261208T180000Z';
-    else if (ev.id === 'haldi') dates = '&dates=20261209T043000Z/20261209T083000Z';
-    else if (ev.id === 'wedding') dates = '&dates=20261209T143000Z/20261209T203000Z';
+    if (ev.id === 'mehendi') dates = '&dates=20261208T120000/20261208T160000';
+    else if (ev.id === 'sangeet') dates = '&dates=20261208T180000/20261208T233000';
+    else if (ev.id === 'haldi') dates = '&dates=20261209T100000/20261209T140000';
+    else if (ev.id === 'wedding') dates = '&dates=20261209T200000/20261210T020000';
 
-    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&location=${location}${dates}`;
+    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&location=${location}${dates}&ctz=Asia/Kolkata`;
   };
 
   return (
