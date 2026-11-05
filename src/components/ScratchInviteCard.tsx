@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { weddingAudio } from '../utils/audioPlayer';
 
-export function ScratchInviteCard() {
+export function ScratchInviteCard({ onReveal }: { onReveal?: () => void }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const lastPointRef = useRef<{ x: number; y: number } | null>(null);
@@ -131,6 +131,7 @@ export function ScratchInviteCard() {
     setIsScratchedOff(true);
     setScratchPercent(100);
     lastPointRef.current = null;
+    onReveal?.();
     weddingAudio.playChime();
 
     // Cheerful romantic confetti burst
@@ -140,7 +141,7 @@ export function ScratchInviteCard() {
       origin: { y: 0.6 },
       colors: ['#FFB6C1', '#FF69B4', '#FFD700', '#F4A261', '#FFF176'],
     });
-  }, []);
+  }, [onReveal]);
 
   // Lightweight & fast scratch calculation
   const checkScratchPercentage = useCallback(() => {

@@ -64,7 +64,9 @@ const CELEBRATION_EVENTS: WeddingEvent[] = [
   },
 ];
 
-export function EventsTimeline() {
+const LOCKED_CLASSES = 'opacity-50 cursor-not-allowed pointer-events-none';
+
+export function EventsTimeline({ unlocked = false }: { unlocked?: boolean }) {
   const getCalendarUrl = (ev: WeddingEvent) => {
     const title = encodeURIComponent(ev.calendarTitle);
     const details = encodeURIComponent(`${ev.description}\n\nDress Code: ${ev.dressCode}\nVenue: ${ev.venue}, ${ev.address}`);
@@ -118,15 +120,21 @@ export function EventsTimeline() {
             </div>
           </div>
 
-          <a
-            href={MAPS_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-rose-500 hover:bg-rose-600 text-white rounded-full text-xs font-semibold shadow-xs transition-colors shrink-0 w-full sm:w-auto"
-          >
-            <MapPin className="w-3.5 h-3.5" />
-            <span>Get Directions</span>
-          </a>
+          <div className="flex flex-col items-center sm:items-end gap-1.5 shrink-0 w-full sm:w-auto">
+            <a
+              href={unlocked ? MAPS_URL : undefined}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-disabled={!unlocked}
+              className={`inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-rose-500 hover:bg-rose-600 text-white rounded-full text-xs font-semibold shadow-xs transition-colors w-full sm:w-auto ${unlocked ? '' : LOCKED_CLASSES}`}
+            >
+              <MapPin className="w-3.5 h-3.5" />
+              <span>Get Directions</span>
+            </a>
+            {!unlocked && (
+              <span className="text-[11px] text-stone-500">Scratch the invitation card to unlock</span>
+            )}
+          </div>
         </div>
 
         {/* Sequential List of Events (One After Another) */}
@@ -189,14 +197,18 @@ export function EventsTimeline() {
                 {/* Action Buttons */}
                 <div className="flex flex-wrap items-center gap-3 pt-2">
                   <a
-                    href={getCalendarUrl(event)}
+                    href={unlocked ? getCalendarUrl(event) : undefined}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-stone-900 hover:bg-stone-800 text-white rounded-full text-xs font-medium transition-colors shadow-xs"
+                    aria-disabled={!unlocked}
+                    className={`inline-flex items-center gap-2 px-5 py-2.5 bg-stone-900 hover:bg-stone-800 text-white rounded-full text-xs font-medium transition-colors shadow-xs ${unlocked ? '' : LOCKED_CLASSES}`}
                   >
                     <Calendar className="w-3.5 h-3.5" />
                     <span>Add Ceremony to Calendar</span>
                   </a>
+                  {!unlocked && (
+                    <span className="text-[11px] text-stone-500">Scratch the invitation card to unlock</span>
+                  )}
                 </div>
               </div>
             </div>

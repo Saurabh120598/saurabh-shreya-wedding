@@ -11,6 +11,7 @@ import { PetalRain } from './components/PetalRain';
 export default function App() {
   const [petalRain, setPetalRain] = useState(true);
   const [rsvpModalOpen, setRsvpModalOpen] = useState(false);
+  const [inviteRevealed, setInviteRevealed] = useState(false);
 
   return (
     <div className="min-h-screen bg-[#FFFDF9] text-[#2D2A26] selection:bg-rose-200 selection:text-rose-900 font-sans relative">
@@ -30,10 +31,10 @@ export default function App() {
         <Hero onOpenRSVP={() => setRsvpModalOpen(true)} />
 
         {/* Scratch-off Invitation & QR Code Reveal */}
-        <ScratchInviteCard />
+        <ScratchInviteCard onReveal={() => setInviteRevealed(true)} />
 
         {/* Wedding Ceremonies Schedule */}
-        <EventsTimeline />
+        <EventsTimeline unlocked={inviteRevealed} />
 
         {/* Call Stuff & Wedding Concierge Hotline */}
         <WeddingHotline />

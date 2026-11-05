@@ -46,6 +46,14 @@ export function Hero({ onOpenRSVP }: { onOpenRSVP: () => void }) {
     return () => clearInterval(interval);
   }, [targetDate]);
 
+  // Auto-advance photos every 4s; timer restarts whenever the photo changes (including manual swipes)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setActivePhoto((prev) => (prev + 1) % HERO_PHOTOS.length);
+    }, 4000);
+    return () => clearTimeout(timer);
+  }, [activePhoto]);
+
   const handleNextPhoto = () => {
     setActivePhoto((prev) => (prev + 1) % HERO_PHOTOS.length);
   };
