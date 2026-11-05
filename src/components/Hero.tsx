@@ -171,7 +171,7 @@ export function Hero({ onOpenRSVP }: { onOpenRSVP: () => void }) {
           {/* Right Column: Interactive Multi-Photo Layered Stack Gallery */}
           <div className="lg:col-span-6 flex flex-col items-center justify-center">
             <div
-              className="relative max-w-md w-full h-[380px] sm:h-[420px] flex items-center justify-center select-none"
+              className="relative max-w-md w-full aspect-[4/5] flex items-center justify-center select-none"
               onTouchStart={handleTouchStart}
               onTouchEnd={handleTouchEnd}
             >
@@ -212,7 +212,7 @@ export function Hero({ onOpenRSVP }: { onOpenRSVP: () => void }) {
                       <img
                         src={photo.src}
                         alt={`Saurabh and Shreya wedding portrait ${index + 1}`}
-                        className="w-full h-full object-cover object-center pointer-events-none"
+                        className="w-full h-full object-cover object-top pointer-events-none"
                         referrerPolicy="no-referrer"
                       />
 

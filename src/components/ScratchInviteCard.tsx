@@ -423,7 +423,8 @@ export function ScratchInviteCard() {
                 </div>
               )}
 
-              {/* Action Buttons for the Card */}
+              {/* Action Buttons for the Card (only after reveal) */}
+              {isScratchedOff && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1 text-xs">
                 <a
                   href={getGoogleCalendarUrl()}
@@ -445,6 +446,7 @@ export function ScratchInviteCard() {
                   <span>View Map</span>
                 </a>
               </div>
+              )}
 
             </div>
 
