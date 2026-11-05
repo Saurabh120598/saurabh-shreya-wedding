@@ -1,9 +1,9 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import confetti from 'canvas-confetti';
+import QRCode from 'qrcode';
 import {
   Sparkles,
   QrCode,
-  Download,
   Calendar,
   Share2,
   Check,
@@ -23,6 +23,23 @@ export function ScratchInviteCard() {
   const [scratchPercent, setScratchPercent] = useState(0);
   const [isDrawing, setIsDrawing] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
+
+  // Generate a real scannable QR code on mount
+  useEffect(() => {
+    const currentUrl = typeof window !== 'undefined' ? window.location.href : 'https://saurabh-weds-shreya.web.app';
+    QRCode.toDataURL(currentUrl, {
+      width: 320,
+      margin: 2,
+      color: {
+        dark: '#881337', // Deep rose wine color for scannable high contrast
+        light: '#FFFFFF',
+      },
+      errorCorrectionLevel: 'M',
+    })
+      .then((url) => setQrCodeUrl(url))
+      .catch((err) => console.error('Failed to generate QR code', err));
+  }, []);
 
   // Initialize and paint scratch card canvas
   const initCanvas = useCallback(() => {
@@ -31,24 +48,26 @@ export function ScratchInviteCard() {
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
     if (!ctx) return;
 
-    // High DPI sizing
-    const rect = canvas.getBoundingClientRect();
-    const width = rect.width || 420;
-    const height = rect.height || 460;
+    // Get exact CSS layout dimensions
+    const width = canvas.clientWidth || canvas.offsetWidth || 400;
+    const height = canvas.clientHeight || canvas.offsetHeight || 500;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
-    canvas.width = width * window.devicePixelRatio;
-    canvas.height = height * window.devicePixelRatio;
-    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    canvas.width = Math.floor(width * dpr);
+    canvas.height = Math.floor(height * dpr);
+
+    ctx.save();
+    ctx.scale(dpr, dpr);
 
     // Reset composite operation to paint initial foil
     ctx.globalCompositeOperation = 'source-over';
 
-    // Rich Rose Gold & Champagne gradient
+    // Rich Rose Gold & Champagne foil gradient
     const grad = ctx.createLinearGradient(0, 0, width, height);
-    grad.addColorStop(0, '#F5D0C5');
-    grad.addColorStop(0.3, '#E6B8AA');
-    grad.addColorStop(0.5, '#FCE8E2');
-    grad.addColorStop(0.7, '#D4A396');
+    grad.addColorStop(0, '#F6D2C8');
+    grad.addColorStop(0.25, '#EABEB2');
+    grad.addColorStop(0.5, '#FDE8E2');
+    grad.addColorStop(0.75, '#DCA89C');
     grad.addColorStop(1, '#F3C5BA');
 
     ctx.fillStyle = grad;
@@ -56,38 +75,67 @@ export function ScratchInviteCard() {
 
     // Subtle gold shimmer speckles
     ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
-    for (let i = 0; i < 400; i++) {
+    for (let i = 0; i < 280; i++) {
       const x = Math.random() * width;
       const y = Math.random() * height;
-      const r = Math.random() * 2;
+      const r = Math.random() * 2 + 0.5;
       ctx.beginPath();
       ctx.arc(x, y, r, 0, Math.PI * 2);
       ctx.fill();
     }
 
-    // Border pattern
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
-    ctx.lineWidth = 3;
-    ctx.strokeRect(12, 12, width - 24, height - 24);
+    // Elegant inner borders
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(10, 10, width - 20, height - 20);
 
-    // Foil text instructions
-    ctx.fillStyle = '#6B4035';
+    ctx.strokeStyle = 'rgba(163, 76, 59, 0.2)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(15, 15, width - 30, height - 30);
+
+    const centerX = width / 2;
+    const centerY = height / 2;
+
+    // Center frosted pill box for guaranteed legible text
+    const boxWidth = Math.min(320, width - 40);
+    const boxHeight = 180;
+    const boxX = centerX - boxWidth / 2;
+    const boxY = centerY - boxHeight / 2;
+
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.42)';
+    ctx.beginPath();
+    ctx.roundRect(boxX, boxY, boxWidth, boxHeight, 16);
+    ctx.fill();
+
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Perfectly centered Foil Typography
     ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
 
-    ctx.font = 'bold 22px serif';
-    ctx.fillText('✨ SECRET WEDDING PASS ✨', width / 2, height / 2 - 40);
+    ctx.fillStyle = '#6B3E35';
+    ctx.font = 'bold 17px serif';
+    ctx.fillText('SECRET WEDDING PASS', centerX, centerY - 52);
 
-    ctx.font = 'italic 16px sans-serif';
     ctx.fillStyle = '#7C493D';
-    ctx.fillText('Saurabh Srivastava & Shreya', width / 2, height / 2 - 10);
+    ctx.font = 'italic 15px serif';
+    ctx.fillText('Saurabh Srivastava & Shreya', centerX, centerY - 24);
 
-    ctx.font = 'bold 15px sans-serif';
-    ctx.fillStyle = '#8B483B';
-    ctx.fillText('🖐️ Rub or Scratch with Finger / Mouse', width / 2, height / 2 + 35);
+    ctx.fillStyle = '#9E3A4B';
+    ctx.font = 'bold 13px sans-serif';
+    ctx.fillText('SCRATCH TO REVEAL DATE & PASS', centerX, centerY + 16);
 
-    ctx.font = '13px sans-serif';
+    ctx.fillStyle = '#7C493D';
+    ctx.font = '12px sans-serif';
+    ctx.fillText('Rub with your finger or mouse', centerX, centerY + 42);
+
     ctx.fillStyle = '#9C584B';
-    ctx.fillText('Scratch here to unlock your VIP QR Invitation!', width / 2, height / 2 + 65);
+    ctx.font = '11px sans-serif';
+    ctx.fillText('Unlocks VIP QR & Ceremony Date', centerX, centerY + 64);
+
+    ctx.restore();
 
     setIsScratchedOff(false);
     setScratchPercent(0);
@@ -144,7 +192,6 @@ export function ScratchInviteCard() {
 
     const width = canvas.width;
     const height = canvas.height;
-    // Downsample for fast check
     const sampleStep = 16;
     let transparentCount = 0;
     let totalSamples = 0;
@@ -166,11 +213,11 @@ export function ScratchInviteCard() {
       const percent = Math.min(100, Math.round((transparentCount / totalSamples) * 100));
       setScratchPercent(percent);
 
-      if (percent >= 40 && !isScratchedOff) {
+      if (percent >= 38 && !isScratchedOff) {
         revealCard();
       }
     } catch {
-      // Ignore security/cross-origin constraints if any
+      // Ignore security constraints
     }
   };
 
@@ -235,14 +282,13 @@ export function ScratchInviteCard() {
       'Join us to celebrate the holy wedding ceremony of Saurabh Srivastava and Shreya!\nDress Code: Royal Pastel Ethnic / Festive Indian\nVenue: Bundigarh Resort, Shaheed Path, Lucknow'
     );
     const location = encodeURIComponent('Bundigarh Resort, Shaheed Path, Lucknow, Uttar Pradesh');
-    // Dec 9, 2026, 20:00 IST to Dec 10, 2026, 01:00 IST (UTC: 14:30 – 19:30)
+    // Dec 9, 2026, 20:00 IST to Dec 10, 2026, 01:00 IST
     const dates = '20261209T143000Z/20261209T193000Z';
     return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&location=${location}&dates=${dates}`;
   };
 
   return (
     <section id="scratch-invite" className="py-16 md:py-24 bg-[#FFFBF8] relative overflow-hidden">
-      {/* Soft background accents */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
@@ -255,7 +301,7 @@ export function ScratchInviteCard() {
             Scratch to Unlock Your Invitation
           </h2>
           <p className="text-stone-600 text-sm sm:text-base mt-3 leading-relaxed">
-            Every guest has a reserved place in our hearts. Rub the rose-gold foil below with your finger or mouse to uncover your VIP QR pass and event access details!
+            Every guest has a reserved place in our hearts. Rub the rose-gold foil below with your finger or mouse to uncover our wedding ceremony date and your VIP QR pass!
           </p>
         </div>
 
@@ -270,25 +316,25 @@ export function ScratchInviteCard() {
               <span className="font-serif font-bold text-rose-600 text-sm tracking-wide">
                 ⚜️ ROYAL WEDDING INVITATION
               </span>
-              <span className="font-mono text-[11px] bg-rose-50 px-2 py-0.5 rounded text-rose-800">
+              <span className="font-mono text-[11px] bg-rose-50 px-2.5 py-0.5 rounded-full text-rose-800 font-semibold border border-rose-200">
                 PASS #SRB-SHR-2026
               </span>
             </div>
 
             {/* Scratch Frame Container */}
-            <div className="relative mt-5 rounded-2xl overflow-hidden min-h-[480px] bg-gradient-to-b from-[#FFF5F3] to-[#FFF9F6] border border-rose-200/80 shadow-inner">
+            <div className="relative mt-5 rounded-2xl overflow-hidden min-h-[520px] bg-gradient-to-b from-[#FFF5F3] to-[#FFF9F6] border border-rose-200/80 shadow-inner flex flex-col justify-between">
               
-              {/* UNDERNEATH LAYER: The Revealed VIP Invitation Card with QR Code */}
-              <div className="p-6 sm:p-7 flex flex-col items-center text-center space-y-4">
+              {/* UNDERNEATH LAYER: The Revealed VIP Invitation Card with Revealed Date & Real QR Code */}
+              <div className="p-5 sm:p-7 flex flex-col items-center text-center space-y-4 w-full">
                 
                 {/* Monogram */}
-                <div className="w-14 h-14 rounded-full bg-rose-100 border-2 border-rose-300 flex items-center justify-center text-rose-600 font-serif font-bold text-xl shadow-xs">
+                <div className="w-13 h-13 rounded-full bg-rose-100 border-2 border-rose-300 flex items-center justify-center text-rose-600 font-serif font-bold text-lg shadow-xs">
                   S &amp; S
                 </div>
 
                 {/* Wedding Couple Header */}
-                <div className="space-y-1">
-                  <p className="text-xs uppercase tracking-widest text-amber-700 font-semibold">
+                <div className="space-y-0.5">
+                  <p className="text-[11px] uppercase tracking-widest text-amber-700 font-semibold">
                     You Are Cordially Invited to Celebrate
                   </p>
                   <h3 className="text-2xl sm:text-3xl font-serif font-semibold text-stone-900">
@@ -302,84 +348,50 @@ export function ScratchInviteCard() {
                   </h3>
                 </div>
 
-                {/* Scannable QR Code */}
-                <div className="pt-2 pb-1 flex flex-col items-center">
-                  <div className="p-3 bg-white rounded-2xl shadow-md border border-rose-100 relative group">
-                    {/* High Fidelity SVG QR Code */}
-                    <svg
-                      className="w-36 h-36 sm:w-40 sm:h-40"
-                      viewBox="0 0 100 100"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      {/* Background */}
-                      <rect width="100" height="100" fill="white" rx="8" />
-                      
-                      {/* Outer Position Finders */}
-                      {/* Top-Left */}
-                      <rect x="10" y="10" width="22" height="22" rx="4" fill="#881337" />
-                      <rect x="14" y="14" width="14" height="14" rx="2" fill="white" />
-                      <rect x="17" y="17" width="8" height="8" rx="1" fill="#E11D48" />
+                {/* PROMINENTLY REVEALED WEDDING DATE BANNER */}
+                <div className="w-full bg-gradient-to-r from-rose-50 via-rose-100/70 to-amber-50 border-2 border-rose-200 rounded-2xl p-3.5 sm:p-4 shadow-xs">
+                  <div className="flex items-center justify-center gap-1.5 text-rose-700 text-xs uppercase tracking-wider font-bold mb-1">
+                    <Sparkles className="w-3.5 h-3.5 text-rose-500" />
+                    <span>Wedding Date Revealed</span>
+                    <Sparkles className="w-3.5 h-3.5 text-rose-500" />
+                  </div>
+                  <div className="text-2xl sm:text-3xl font-serif font-bold text-stone-900 tracking-tight">
+                    December 09, 2026
+                  </div>
+                  <div className="text-xs sm:text-sm text-stone-600 font-medium mt-1 flex items-center justify-center gap-2">
+                    <span>Wednesday</span>
+                    <span>·</span>
+                    <span className="text-rose-600 font-semibold">8:00 PM Onwards</span>
+                    <span>·</span>
+                    <span>Lucknow</span>
+                  </div>
+                </div>
 
-                      {/* Top-Right */}
-                      <rect x="68" y="10" width="22" height="22" rx="4" fill="#881337" />
-                      <rect x="72" y="14" width="14" height="14" rx="2" fill="white" />
-                      <rect x="75" y="17" width="8" height="8" rx="1" fill="#E11D48" />
-
-                      {/* Bottom-Left */}
-                      <rect x="10" y="68" width="22" height="22" rx="4" fill="#881337" />
-                      <rect x="14" y="72" width="14" height="14" rx="2" fill="white" />
-                      <rect x="17" y="75" width="8" height="8" rx="1" fill="#E11D48" />
-
-                      {/* Stylized QR Matrix Dots */}
-                      <rect x="36" y="12" width="5" height="5" rx="1" fill="#9F1239" />
-                      <rect x="44" y="12" width="5" height="5" rx="1" fill="#9F1239" />
-                      <rect x="52" y="12" width="5" height="5" rx="1" fill="#9F1239" />
-                      <rect x="36" y="20" width="5" height="5" rx="1" fill="#BE123C" />
-                      <rect x="48" y="20" width="8" height="5" rx="1" fill="#9F1239" />
-                      <rect x="60" y="20" width="5" height="5" rx="1" fill="#9F1239" />
-                      <rect x="40" y="28" width="5" height="5" rx="1" fill="#9F1239" />
-                      <rect x="52" y="28" width="8" height="5" rx="1" fill="#E11D48" />
-                      
-                      {/* Center Monogram Heart Badge */}
-                      <rect x="40" y="40" width="20" height="20" rx="5" fill="#FFE4E6" stroke="#E11D48" strokeWidth="1.5" />
-                      <path
-                        d="M50 53 C50 53, 44 49, 44 45.5 C44 43.5 45.5 42 47.5 42 C48.8 42 49.6 42.8 50 43.4 C50.4 42.8 51.2 42 52.5 42 C54.5 42 56 43.5 56 45.5 C56 49 50 53 50 53 Z"
-                        fill="#E11D48"
+                {/* Working Scannable QR Code */}
+                <div className="pt-1 flex flex-col items-center">
+                  <div className="p-3 bg-white rounded-2xl shadow-md border border-rose-100 relative group flex flex-col items-center">
+                    {qrCodeUrl ? (
+                      <img
+                        src={qrCodeUrl}
+                        alt="Scan QR code with phone camera to check-in"
+                        className="w-36 h-36 sm:w-40 sm:h-40 object-contain rounded-lg"
                       />
+                    ) : (
+                      <div className="w-36 h-36 sm:w-40 sm:h-40 flex items-center justify-center bg-rose-50 rounded-lg">
+                        <QrCode className="w-12 h-12 text-rose-400 animate-pulse" />
+                      </div>
+                    )}
 
-                      {/* Bottom and Right Matrix Elements */}
-                      <rect x="12" y="36" width="5" height="5" rx="1" fill="#9F1239" />
-                      <rect x="20" y="44" width="6" height="5" rx="1" fill="#9F1239" />
-                      <rect x="28" y="36" width="5" height="5" rx="1" fill="#BE123C" />
-                      <rect x="12" y="52" width="5" height="5" rx="1" fill="#9F1239" />
-                      <rect x="28" y="52" width="6" height="5" rx="1" fill="#9F1239" />
-
-                      <rect x="68" y="36" width="5" height="5" rx="1" fill="#9F1239" />
-                      <rect x="76" y="44" width="8" height="5" rx="1" fill="#BE123C" />
-                      <rect x="85" y="36" width="5" height="5" rx="1" fill="#9F1239" />
-                      <rect x="68" y="52" width="6" height="5" rx="1" fill="#9F1239" />
-                      <rect x="80" y="52" width="6" height="5" rx="1" fill="#E11D48" />
-
-                      <rect x="36" y="68" width="5" height="5" rx="1" fill="#9F1239" />
-                      <rect x="44" y="76" width="6" height="5" rx="1" fill="#9F1239" />
-                      <rect x="54" y="68" width="6" height="5" rx="1" fill="#BE123C" />
-                      <rect x="36" y="84" width="6" height="5" rx="1" fill="#9F1239" />
-                      <rect x="48" y="84" width="8" height="5" rx="1" fill="#E11D48" />
-                      <rect x="68" y="68" width="5" height="5" rx="1" fill="#9F1239" />
-                      <rect x="76" y="76" width="7" height="5" rx="1" fill="#9F1239" />
-                      <rect x="85" y="84" width="5" height="5" rx="1" fill="#BE123C" />
-                    </svg>
-
-                    <div className="text-[10px] font-mono text-stone-500 tracking-wider mt-1 text-center font-medium">
-                      SCAN TO CHECK-IN VIP
+                    <div className="text-[10px] font-mono text-stone-600 tracking-wider mt-2 text-center font-medium flex items-center justify-center gap-1">
+                      <QrCode className="w-3 h-3 text-rose-500" />
+                      <span>SCAN WITH CAMERA TO OPEN PASS</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Key Wedding Specifications */}
                 <div className="w-full grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1 text-left text-xs">
-                  <div className="p-2.5 bg-white/80 rounded-xl border border-rose-100">
+                  <div className="p-2.5 bg-white/90 rounded-xl border border-rose-100 shadow-2xs">
                     <div className="flex items-center gap-1.5 text-rose-600 font-semibold mb-1">
                       <Clock className="w-3.5 h-3.5" />
                       <span>Date &amp; Time</span>
@@ -388,7 +400,7 @@ export function ScratchInviteCard() {
                     <p className="text-stone-500 text-[11px]">8:00 PM Onwards</p>
                   </div>
 
-                  <div className="p-2.5 bg-white/80 rounded-xl border border-rose-100">
+                  <div className="p-2.5 bg-white/90 rounded-xl border border-rose-100 shadow-2xs">
                     <div className="flex items-center gap-1.5 text-amber-700 font-semibold mb-1">
                       <MapPin className="w-3.5 h-3.5" />
                       <span>The Venue</span>
@@ -397,7 +409,7 @@ export function ScratchInviteCard() {
                     <p className="text-stone-500 text-[11px]">Shaheed Path, Lucknow</p>
                   </div>
 
-                  <div className="p-2.5 bg-white/80 rounded-xl border border-rose-100">
+                  <div className="p-2.5 bg-white/90 rounded-xl border border-rose-100 shadow-2xs">
                     <div className="flex items-center gap-1.5 text-emerald-700 font-semibold mb-1">
                       <Shirt className="w-3.5 h-3.5" />
                       <span>Dress Code</span>
@@ -435,7 +447,7 @@ export function ScratchInviteCard() {
             <div className="mt-5 space-y-3">
               {/* Progress and instructions */}
               {!isScratchedOff ? (
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-rose-50/60 p-3 rounded-2xl border border-rose-100 text-xs">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-rose-50/70 p-3 rounded-2xl border border-rose-100 text-xs">
                   <div className="flex items-center gap-2 text-stone-700">
                     <Sparkles className="w-4 h-4 text-rose-500" />
                     <span>
@@ -452,9 +464,9 @@ export function ScratchInviteCard() {
                   </button>
                 </div>
               ) : (
-                <div className="flex items-center justify-center gap-2 text-emerald-700 bg-emerald-50/70 p-2.5 rounded-xl border border-emerald-200 text-xs font-medium">
+                <div className="flex items-center justify-center gap-2 text-emerald-700 bg-emerald-50/80 p-2.5 rounded-xl border border-emerald-200 text-xs font-medium">
                   <PartyPopper className="w-4 h-4" />
-                  <span>Invitation Unlocked! VIP Pass is Ready &amp; Valid for Entry.</span>
+                  <span>Invitation &amp; Date Unlocked! VIP Pass is Ready &amp; Valid for Entry.</span>
                 </div>
               )}
 
