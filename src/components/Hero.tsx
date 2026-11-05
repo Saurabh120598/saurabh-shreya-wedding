@@ -73,11 +73,11 @@ export function Hero({ onOpenRSVP }: { onOpenRSVP: () => void }) {
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 text-xs sm:text-sm text-stone-700 pt-1">
               <div className="flex items-center gap-2 px-3 py-1.5 bg-rose-50/70 border border-rose-100 rounded-lg">
                 <Calendar className="w-4 h-4 text-rose-500" />
-                <span className="font-medium">December 09, 2026</span>
+                <span className="font-medium">December 2026</span>
               </div>
               <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-50/70 border border-amber-100 rounded-lg">
                 <MapPin className="w-4 h-4 text-amber-600" />
-                <span className="font-medium">Bundigarh Resort, Lucknow</span>
+                <span className="font-medium">Lucknow</span>
               </div>
             </div>
 

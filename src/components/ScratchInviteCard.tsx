@@ -1,12 +1,8 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import confetti from 'canvas-confetti';
-import QRCode from 'qrcode';
 import {
   Sparkles,
-  QrCode,
   Calendar,
-  Share2,
-  Check,
   RefreshCw,
   MapPin,
   Clock,
@@ -19,27 +15,10 @@ import { weddingAudio } from '../utils/audioPlayer';
 export function ScratchInviteCard() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const lastPointRef = useRef<{ x: number; y: number } | null>(null);
   const [isScratchedOff, setIsScratchedOff] = useState(false);
   const [scratchPercent, setScratchPercent] = useState(0);
   const [isDrawing, setIsDrawing] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
-
-  // Generate a real scannable QR code on mount
-  useEffect(() => {
-    const currentUrl = typeof window !== 'undefined' ? window.location.href : 'https://saurabh-weds-shreya.web.app';
-    QRCode.toDataURL(currentUrl, {
-      width: 320,
-      margin: 2,
-      color: {
-        dark: '#881337', // Deep rose wine color for scannable high contrast
-        light: '#FFFFFF',
-      },
-      errorCorrectionLevel: 'M',
-    })
-      .then((url) => setQrCodeUrl(url))
-      .catch((err) => console.error('Failed to generate QR code', err));
-  }, []);
 
   // Initialize and paint scratch card canvas
   const initCanvas = useCallback(() => {
@@ -50,7 +29,7 @@ export function ScratchInviteCard() {
 
     // Get exact CSS layout dimensions
     const width = canvas.clientWidth || canvas.offsetWidth || 400;
-    const height = canvas.clientHeight || canvas.offsetHeight || 500;
+    const height = canvas.clientHeight || canvas.offsetHeight || 440;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
     canvas.width = Math.floor(width * dpr);
@@ -98,11 +77,11 @@ export function ScratchInviteCard() {
 
     // Center frosted pill box for guaranteed legible text
     const boxWidth = Math.min(320, width - 40);
-    const boxHeight = 180;
+    const boxHeight = 170;
     const boxX = centerX - boxWidth / 2;
     const boxY = centerY - boxHeight / 2;
 
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.42)';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
     ctx.beginPath();
     ctx.roundRect(boxX, boxY, boxWidth, boxHeight, 16);
     ctx.fill();
@@ -117,15 +96,15 @@ export function ScratchInviteCard() {
 
     ctx.fillStyle = '#6B3E35';
     ctx.font = 'bold 17px serif';
-    ctx.fillText('SECRET WEDDING PASS', centerX, centerY - 52);
+    ctx.fillText('SECRET WEDDING INVITATION', centerX, centerY - 48);
 
     ctx.fillStyle = '#7C493D';
     ctx.font = 'italic 15px serif';
-    ctx.fillText('Saurabh Srivastava & Shreya', centerX, centerY - 24);
+    ctx.fillText('Saurabh Srivastava & Shreya', centerX, centerY - 20);
 
     ctx.fillStyle = '#9E3A4B';
     ctx.font = 'bold 13px sans-serif';
-    ctx.fillText('SCRATCH TO REVEAL DATE & PASS', centerX, centerY + 16);
+    ctx.fillText('SCRATCH TO REVEAL WEDDING DATE', centerX, centerY + 18);
 
     ctx.fillStyle = '#7C493D';
     ctx.font = '12px sans-serif';
@@ -133,16 +112,16 @@ export function ScratchInviteCard() {
 
     ctx.fillStyle = '#9C584B';
     ctx.font = '11px sans-serif';
-    ctx.fillText('Unlocks VIP QR & Ceremony Date', centerX, centerY + 64);
+    ctx.fillText('Unlocks Ceremony Date & Venue Details', centerX, centerY + 62);
 
     ctx.restore();
 
     setIsScratchedOff(false);
     setScratchPercent(0);
+    lastPointRef.current = null;
   }, []);
 
   useEffect(() => {
-    // Delay slightly so layout rect is accurate
     const timer = setTimeout(() => {
       initCanvas();
     }, 100);
@@ -160,7 +139,7 @@ export function ScratchInviteCard() {
     };
   }, [initCanvas, isScratchedOff]);
 
-  // Scratch action
+  // Scratch action with wide brush and continuous line support
   const scratch = (clientX: number, clientY: number) => {
     const canvas = canvasRef.current;
     if (!canvas || isScratchedOff) return;
@@ -172,16 +151,25 @@ export function ScratchInviteCard() {
     const y = clientY - rect.top;
 
     ctx.globalCompositeOperation = 'destination-out';
-    ctx.beginPath();
-    ctx.arc(x, y, 26, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.lineWidth = 64; // Wide brush to easily clear large areas
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    if (lastPointRef.current) {
+      ctx.beginPath();
+      ctx.moveTo(lastPointRef.current.x, lastPointRef.current.y);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+    } else {
+      ctx.beginPath();
+      ctx.arc(x, y, 32, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    lastPointRef.current = { x, y };
 
     weddingAudio.playScratchSound();
-
-    // Sample percentage every few strokes
-    if (Math.random() > 0.4) {
-      checkScratchPercentage();
-    }
+    checkScratchPercentage();
   };
 
   const checkScratchPercentage = () => {
@@ -192,7 +180,7 @@ export function ScratchInviteCard() {
 
     const width = canvas.width;
     const height = canvas.height;
-    const sampleStep = 16;
+    const sampleStep = 18;
     let transparentCount = 0;
     let totalSamples = 0;
 
@@ -213,7 +201,8 @@ export function ScratchInviteCard() {
       const percent = Math.min(100, Math.round((transparentCount / totalSamples) * 100));
       setScratchPercent(percent);
 
-      if (percent >= 38 && !isScratchedOff) {
+      // Fast reveal trigger at ~30% scratched
+      if (percent >= 30 && !isScratchedOff) {
         revealCard();
       }
     } catch {
@@ -224,6 +213,7 @@ export function ScratchInviteCard() {
   const revealCard = () => {
     setIsScratchedOff(true);
     setScratchPercent(100);
+    lastPointRef.current = null;
     weddingAudio.playChime();
 
     // Cheerful romantic confetti burst
@@ -238,6 +228,7 @@ export function ScratchInviteCard() {
   // Touch and mouse handlers
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
     setIsDrawing(true);
+    lastPointRef.current = null;
     scratch(e.clientX, e.clientY);
   };
 
@@ -248,12 +239,14 @@ export function ScratchInviteCard() {
 
   const handleMouseUp = () => {
     setIsDrawing(false);
+    lastPointRef.current = null;
     checkScratchPercentage();
   };
 
   const handleTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
     if (e.touches.length > 0) {
       setIsDrawing(true);
+      lastPointRef.current = null;
       scratch(e.touches[0].clientX, e.touches[0].clientY);
     }
   };
@@ -265,14 +258,8 @@ export function ScratchInviteCard() {
 
   const handleTouchEnd = () => {
     setIsDrawing(false);
+    lastPointRef.current = null;
     checkScratchPercentage();
-  };
-
-  const handleCopyLink = () => {
-    const inviteUrl = window.location.href;
-    navigator.clipboard.writeText(inviteUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2500);
   };
 
   // Google Calendar URL generator
@@ -295,13 +282,13 @@ export function ScratchInviteCard() {
         <div className="text-center max-w-2xl mx-auto mb-10 md:mb-14">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-rose-50 border border-rose-200 rounded-full text-rose-700 text-xs font-semibold uppercase tracking-wider mb-3">
             <Sparkles className="w-3.5 h-3.5" />
-            Interactive Guest Pass
+            Interactive Guest Card
           </div>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif text-stone-900 font-medium">
             Scratch to Unlock Your Invitation
           </h2>
           <p className="text-stone-600 text-sm sm:text-base mt-3 leading-relaxed">
-            Every guest has a reserved place in our hearts. Rub the rose-gold foil below with your finger or mouse to uncover our wedding ceremony date and your VIP QR pass!
+            Every guest has a reserved place in our hearts. Rub the rose-gold foil below with your finger or mouse to uncover our wedding ceremony date and celebration details!
           </p>
         </div>
 
@@ -322,25 +309,25 @@ export function ScratchInviteCard() {
             </div>
 
             {/* Scratch Frame Container */}
-            <div className="relative mt-5 rounded-2xl overflow-hidden min-h-[520px] bg-gradient-to-b from-[#FFF5F3] to-[#FFF9F6] border border-rose-200/80 shadow-inner flex flex-col justify-between">
+            <div className="relative mt-5 rounded-2xl overflow-hidden min-h-[460px] bg-gradient-to-b from-[#FFF5F3] to-[#FFF9F6] border border-rose-200/80 shadow-inner flex flex-col justify-between">
               
-              {/* UNDERNEATH LAYER: The Revealed VIP Invitation Card with Revealed Date & Real QR Code */}
-              <div className="p-5 sm:p-7 flex flex-col items-center text-center space-y-4 w-full">
+              {/* UNDERNEATH LAYER: The Revealed VIP Invitation Card with Revealed Date */}
+              <div className="p-6 sm:p-8 flex flex-col items-center text-center space-y-5 w-full">
                 
                 {/* Monogram */}
-                <div className="w-13 h-13 rounded-full bg-rose-100 border-2 border-rose-300 flex items-center justify-center text-rose-600 font-serif font-bold text-lg shadow-xs">
+                <div className="w-14 h-14 rounded-full bg-rose-100 border-2 border-rose-300 flex items-center justify-center text-rose-600 font-serif font-bold text-xl shadow-xs">
                   S &amp; S
                 </div>
 
                 {/* Wedding Couple Header */}
-                <div className="space-y-0.5">
-                  <p className="text-[11px] uppercase tracking-widest text-amber-700 font-semibold">
+                <div className="space-y-1">
+                  <p className="text-[11px] sm:text-xs uppercase tracking-widest text-amber-700 font-semibold">
                     You Are Cordially Invited to Celebrate
                   </p>
                   <h3 className="text-2xl sm:text-3xl font-serif font-semibold text-stone-900">
                     Saurabh Srivastava
                   </h3>
-                  <div className="font-script text-2xl text-rose-500 font-normal">
+                  <div className="font-script text-2xl sm:text-3xl text-rose-500 font-normal">
                     weds
                   </div>
                   <h3 className="text-2xl sm:text-3xl font-serif font-semibold text-stone-900">
@@ -349,16 +336,16 @@ export function ScratchInviteCard() {
                 </div>
 
                 {/* PROMINENTLY REVEALED WEDDING DATE BANNER */}
-                <div className="w-full bg-gradient-to-r from-rose-50 via-rose-100/70 to-amber-50 border-2 border-rose-200 rounded-2xl p-3.5 sm:p-4 shadow-xs">
-                  <div className="flex items-center justify-center gap-1.5 text-rose-700 text-xs uppercase tracking-wider font-bold mb-1">
+                <div className="w-full bg-gradient-to-r from-rose-50 via-rose-100/70 to-amber-50 border-2 border-rose-200 rounded-2xl p-4 sm:p-5 shadow-xs">
+                  <div className="flex items-center justify-center gap-1.5 text-rose-700 text-xs uppercase tracking-wider font-bold mb-1.5">
                     <Sparkles className="w-3.5 h-3.5 text-rose-500" />
                     <span>Wedding Date Revealed</span>
                     <Sparkles className="w-3.5 h-3.5 text-rose-500" />
                   </div>
-                  <div className="text-2xl sm:text-3xl font-serif font-bold text-stone-900 tracking-tight">
+                  <div className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-stone-900 tracking-tight">
                     December 09, 2026
                   </div>
-                  <div className="text-xs sm:text-sm text-stone-600 font-medium mt-1 flex items-center justify-center gap-2">
+                  <div className="text-xs sm:text-sm text-stone-600 font-medium mt-1.5 flex items-center justify-center gap-2">
                     <span>Wednesday</span>
                     <span>·</span>
                     <span className="text-rose-600 font-semibold">8:00 PM Onwards</span>
@@ -367,31 +354,9 @@ export function ScratchInviteCard() {
                   </div>
                 </div>
 
-                {/* Working Scannable QR Code */}
-                <div className="pt-1 flex flex-col items-center">
-                  <div className="p-3 bg-white rounded-2xl shadow-md border border-rose-100 relative group flex flex-col items-center">
-                    {qrCodeUrl ? (
-                      <img
-                        src={qrCodeUrl}
-                        alt="Scan QR code with phone camera to check-in"
-                        className="w-36 h-36 sm:w-40 sm:h-40 object-contain rounded-lg"
-                      />
-                    ) : (
-                      <div className="w-36 h-36 sm:w-40 sm:h-40 flex items-center justify-center bg-rose-50 rounded-lg">
-                        <QrCode className="w-12 h-12 text-rose-400 animate-pulse" />
-                      </div>
-                    )}
-
-                    <div className="text-[10px] font-mono text-stone-600 tracking-wider mt-2 text-center font-medium flex items-center justify-center gap-1">
-                      <QrCode className="w-3 h-3 text-rose-500" />
-                      <span>SCAN WITH CAMERA TO OPEN PASS</span>
-                    </div>
-                  </div>
-                </div>
-
                 {/* Key Wedding Specifications */}
                 <div className="w-full grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1 text-left text-xs">
-                  <div className="p-2.5 bg-white/90 rounded-xl border border-rose-100 shadow-2xs">
+                  <div className="p-3 bg-white/90 rounded-xl border border-rose-100 shadow-2xs">
                     <div className="flex items-center gap-1.5 text-rose-600 font-semibold mb-1">
                       <Clock className="w-3.5 h-3.5" />
                       <span>Date &amp; Time</span>
@@ -400,7 +365,7 @@ export function ScratchInviteCard() {
                     <p className="text-stone-500 text-[11px]">8:00 PM Onwards</p>
                   </div>
 
-                  <div className="p-2.5 bg-white/90 rounded-xl border border-rose-100 shadow-2xs">
+                  <div className="p-3 bg-white/90 rounded-xl border border-rose-100 shadow-2xs">
                     <div className="flex items-center gap-1.5 text-amber-700 font-semibold mb-1">
                       <MapPin className="w-3.5 h-3.5" />
                       <span>The Venue</span>
@@ -409,7 +374,7 @@ export function ScratchInviteCard() {
                     <p className="text-stone-500 text-[11px]">Shaheed Path, Lucknow</p>
                   </div>
 
-                  <div className="p-2.5 bg-white/90 rounded-xl border border-rose-100 shadow-2xs">
+                  <div className="p-3 bg-white/90 rounded-xl border border-rose-100 shadow-2xs">
                     <div className="flex items-center gap-1.5 text-emerald-700 font-semibold mb-1">
                       <Shirt className="w-3.5 h-3.5" />
                       <span>Dress Code</span>
@@ -460,18 +425,18 @@ export function ScratchInviteCard() {
                     className="px-3.5 py-1.5 bg-rose-500 hover:bg-rose-600 text-white font-medium rounded-full shadow-xs transition-all text-xs flex items-center gap-1"
                   >
                     <PartyPopper className="w-3.5 h-3.5" />
-                    <span>Quick Reveal VIP Pass</span>
+                    <span>Quick Reveal Invitation</span>
                   </button>
                 </div>
               ) : (
                 <div className="flex items-center justify-center gap-2 text-emerald-700 bg-emerald-50/80 p-2.5 rounded-xl border border-emerald-200 text-xs font-medium">
                   <PartyPopper className="w-4 h-4" />
-                  <span>Invitation &amp; Date Unlocked! VIP Pass is Ready &amp; Valid for Entry.</span>
+                  <span>Invitation &amp; Date Unlocked! We cannot wait to celebrate with you.</span>
                 </div>
               )}
 
               {/* Action Buttons for the Card */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1 text-xs">
                 <a
                   href={getGoogleCalendarUrl()}
                   target="_blank"
@@ -482,29 +447,11 @@ export function ScratchInviteCard() {
                   <span>Add to Calendar</span>
                 </a>
 
-                <button
-                  type="button"
-                  onClick={handleCopyLink}
-                  className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-white hover:bg-stone-50 text-stone-800 border border-stone-200 rounded-xl font-medium transition-colors"
-                >
-                  {copied ? (
-                    <>
-                      <Check className="w-3.5 h-3.5 text-emerald-600" />
-                      <span className="text-emerald-700">Link Copied!</span>
-                    </>
-                  ) : (
-                    <>
-                      <Share2 className="w-3.5 h-3.5" />
-                      <span>Share Invite</span>
-                    </>
-                  )}
-                </button>
-
                 <a
                   href="https://maps.google.com/?q=Bundigarh+Resort+Shaheed+Path+Lucknow"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-white hover:bg-stone-50 text-stone-800 border border-stone-200 rounded-xl font-medium transition-colors"
+                  className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-white hover:bg-rose-50 text-stone-800 border border-stone-200 hover:border-rose-300 rounded-xl font-medium transition-colors"
                 >
                   <MapPin className="w-3.5 h-3.5 text-amber-600" />
                   <span>View Map</span>

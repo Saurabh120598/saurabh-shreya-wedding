@@ -24,12 +24,12 @@ export function Footer() {
           <div className="flex flex-col sm:flex-row items-center gap-5 text-xs text-stone-400 text-center sm:text-left">
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4 text-rose-400" />
-              <span>December 8–9, 2026</span>
+              <span>December 2026</span>
             </div>
             <span className="hidden sm:inline text-stone-700">·</span>
             <div className="flex items-center gap-2">
               <MapPin className="w-4 h-4 text-amber-400" />
-              <span>Bundigarh Resort, Shaheed Path, Lucknow</span>
+              <span>Lucknow, Uttar Pradesh</span>
             </div>
           </div>
 
