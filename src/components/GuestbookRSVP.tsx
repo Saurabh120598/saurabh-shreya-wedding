@@ -132,7 +132,7 @@ export function GuestbookRSVP({ rsvpModalOpen, onCloseRSVP }: GuestbookRSVPProps
   };
 
   return (
-    <section id="guestbook" className="py-16 md:py-24 bg-[#FFFBF8] relative">
+    <section id="guestbook" className="py-16 md:py-24 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Section Header */}

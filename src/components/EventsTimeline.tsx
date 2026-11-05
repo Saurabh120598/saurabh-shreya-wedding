@@ -82,7 +82,7 @@ export function EventsTimeline({ unlocked = false }: { unlocked?: boolean }) {
   };
 
   return (
-    <section id="events" className="py-16 md:py-24 bg-gradient-to-b from-[#FFFDF9] via-[#FFF9F6] to-[#FFFDF9] relative">
+    <section id="events" className="py-16 md:py-24 relative">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}

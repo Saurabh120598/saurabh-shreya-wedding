@@ -61,7 +61,7 @@ const HOTLINE_CONTACTS: HotlineContact[] = [
 
 export function WeddingHotline() {
   return (
-    <section id="hotlines" className="py-12 md:py-16 bg-white relative">
+    <section id="hotlines" className="py-12 md:py-16 relative">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}

@@ -267,7 +267,7 @@ export function ScratchInviteCard({ onReveal }: { onReveal?: () => void }) {
   };
 
   return (
-    <section id="scratch-invite" className="py-16 md:py-24 bg-[#FFFBF8] relative overflow-hidden">
+    <section id="scratch-invite" className="py-16 md:py-24 relative overflow-hidden">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}

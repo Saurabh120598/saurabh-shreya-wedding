@@ -81,7 +81,7 @@ export function Hero({ onOpenRSVP }: { onOpenRSVP: () => void }) {
   };
 
   return (
-    <section className="relative pt-24 pb-16 md:pt-28 md:pb-24 overflow-hidden bg-gradient-to-b from-[#FFF5F5] via-[#FFFDF9] to-[#FFFDF9]">
+    <section className="relative pt-24 pb-16 md:pt-28 md:pb-24 overflow-hidden">
       {/* Soft decorative background circles */}
       <div className="absolute top-10 left-1/4 w-96 h-96 bg-rose-200/30 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute top-40 right-10 w-80 h-80 bg-amber-100/40 rounded-full blur-3xl pointer-events-none" />
