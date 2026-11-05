@@ -75,44 +75,32 @@ export function ScratchInviteCard() {
     const centerX = width / 2;
     const centerY = height / 2;
 
-    // Center frosted pill box for guaranteed legible text
-    const boxWidth = Math.min(320, width - 40);
-    const boxHeight = 170;
+    // Center compact frosted badge for simple clean one-liner
+    const boxWidth = Math.min(280, width - 36);
+    const boxHeight = 76;
     const boxX = centerX - boxWidth / 2;
     const boxY = centerY - boxHeight / 2;
 
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
     ctx.beginPath();
-    ctx.roundRect(boxX, boxY, boxWidth, boxHeight, 16);
+    ctx.roundRect(boxX, boxY, boxWidth, boxHeight, 20);
     ctx.fill();
 
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
-    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.95)';
+    ctx.lineWidth = 2;
     ctx.stroke();
 
-    // Centered Foil Typography
+    // Centered Clean Foil Typography
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
     ctx.fillStyle = '#6B3E35';
-    ctx.font = 'bold 17px serif';
-    ctx.fillText('SECRET WEDDING INVITATION', centerX, centerY - 48);
+    ctx.font = 'bold 15px serif';
+    ctx.fillText('✨ Scratch to Reveal Invitation', centerX, centerY - 12);
 
-    ctx.fillStyle = '#7C493D';
-    ctx.font = 'italic 15px serif';
-    ctx.fillText('Saurabh & Shreya', centerX, centerY - 20);
-
-    ctx.fillStyle = '#9E3A4B';
-    ctx.font = 'bold 13px sans-serif';
-    ctx.fillText('SCRATCH TO REVEAL WEDDING DATE', centerX, centerY + 18);
-
-    ctx.fillStyle = '#7C493D';
+    ctx.fillStyle = '#8C4B3E';
     ctx.font = '12px sans-serif';
-    ctx.fillText('Rub with your finger or mouse', centerX, centerY + 42);
-
-    ctx.fillStyle = '#9C584B';
-    ctx.font = '11px sans-serif';
-    ctx.fillText('Unlocks Ceremony Date & Venue Details', centerX, centerY + 62);
+    ctx.fillText('Rub with your finger or mouse', centerX, centerY + 14);
 
     ctx.restore();
 
@@ -184,8 +172,8 @@ export function ScratchInviteCard() {
       const percent = Math.min(100, Math.round((transparentCount / totalSamples) * 100));
       setScratchPercent(percent);
 
-      // Auto-reveal trigger at 45% scratched
-      if (percent >= 45 && !isScratchedOff) {
+      // Auto-reveal trigger at 30% scratched
+      if (percent >= 30 && !isScratchedOff) {
         revealCard();
       }
     } catch {
@@ -208,7 +196,7 @@ export function ScratchInviteCard() {
 
     ctx.save();
     ctx.globalCompositeOperation = 'destination-out';
-    ctx.lineWidth = 44 * (scaleX / 1.5); // Realistic, natural scratching brush
+    ctx.lineWidth = 56 * (scaleX / 1.5); // Comfortable clearing brush for mobile & desktop
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
 
@@ -219,7 +207,7 @@ export function ScratchInviteCard() {
       ctx.stroke();
     } else {
       ctx.beginPath();
-      ctx.arc(x, y, 22 * (scaleX / 1.5), 0, Math.PI * 2);
+      ctx.arc(x, y, 28 * (scaleX / 1.5), 0, Math.PI * 2);
       ctx.fill();
     }
     ctx.restore();
