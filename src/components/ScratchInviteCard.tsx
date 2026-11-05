@@ -184,8 +184,8 @@ export function ScratchInviteCard() {
       const percent = Math.min(100, Math.round((transparentCount / totalSamples) * 100));
       setScratchPercent(percent);
 
-      // Fast auto-reveal trigger at 20% scratched
-      if (percent >= 20 && !isScratchedOff) {
+      // Auto-reveal trigger after scratching more than 60% (set to 65%)
+      if (percent >= 65 && !isScratchedOff) {
         revealCard();
       }
     } catch {
@@ -208,7 +208,7 @@ export function ScratchInviteCard() {
 
     ctx.save();
     ctx.globalCompositeOperation = 'destination-out';
-    ctx.lineWidth = 75 * (scaleX / 1.5); // Wide, responsive clearing brush
+    ctx.lineWidth = 44 * (scaleX / 1.5); // Realistic, natural scratching brush
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
 
@@ -219,7 +219,7 @@ export function ScratchInviteCard() {
       ctx.stroke();
     } else {
       ctx.beginPath();
-      ctx.arc(x, y, 38 * (scaleX / 1.5), 0, Math.PI * 2);
+      ctx.arc(x, y, 22 * (scaleX / 1.5), 0, Math.PI * 2);
       ctx.fill();
     }
     ctx.restore();
