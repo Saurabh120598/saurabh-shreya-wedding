@@ -40,13 +40,9 @@ export function GuestbookRSVP({ rsvpModalOpen, onCloseRSVP }: GuestbookRSVPProps
   // RSVP Form State
   const [rsvpData, setRsvpData] = useState<RSVPSubmission>({
     name: '',
-    email: '',
     phone: '',
     guestCount: 2,
     attendingEvents: ['mehendi', 'sangeet', 'haldi', 'wedding'],
-    foodPreference: 'vegetarian',
-    songRequest: '',
-    note: '',
   });
   const [rsvpSubmitting, setRsvpSubmitting] = useState(false);
   const [rsvpSubmitted, setRsvpSubmitted] = useState(false);
@@ -114,13 +110,11 @@ export function GuestbookRSVP({ rsvpModalOpen, onCloseRSVP }: GuestbookRSVPProps
     try {
       await submitRSVP({
         name: rsvpData.name,
-        email: rsvpData.email,
+        email: '',
         phone: rsvpData.phone,
         guestCount: rsvpData.guestCount,
         attendingEvents: rsvpData.attendingEvents,
-        foodPreference: rsvpData.foodPreference,
-        songRequest: rsvpData.songRequest,
-        note: rsvpData.note,
+        foodPreference: '',
       });
       setRsvpSubmitted(true);
       weddingAudio.playChime();
@@ -328,7 +322,7 @@ export function GuestbookRSVP({ rsvpModalOpen, onCloseRSVP }: GuestbookRSVPProps
                     RSVP for Saurabh &amp; Shreya's Wedding
                   </h3>
                   <p className="text-xs text-stone-500 mt-1">
-                    Kindly confirm your presence so our hospitality team can arrange your suite &amp; welcoming feasts!
+                    Kindly confirm your presence
                   </p>
                 </div>
 
@@ -344,7 +338,7 @@ export function GuestbookRSVP({ rsvpModalOpen, onCloseRSVP }: GuestbookRSVPProps
                         value={rsvpData.name}
                         onChange={e => setRsvpData({ ...rsvpData, name: e.target.value })}
                         placeholder="Your Full Name"
-                        className="w-full text-xs px-3 py-2 rounded-xl border border-stone-200 outline-none focus:border-rose-400"
+                        className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-stone-200 outline-none focus:border-rose-400"
                       />
                     </div>
                     <div>
@@ -357,61 +351,26 @@ export function GuestbookRSVP({ rsvpModalOpen, onCloseRSVP }: GuestbookRSVPProps
                         value={rsvpData.phone}
                         onChange={e => setRsvpData({ ...rsvpData, phone: e.target.value })}
                         placeholder="+91 98765 00000"
-                        className="w-full text-xs px-3 py-2 rounded-xl border border-stone-200 outline-none focus:border-rose-400"
+                        className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-stone-200 outline-none focus:border-rose-400"
                       />
                     </div>
                   </div>
 
                   <div>
                     <label className="block text-xs font-medium text-stone-700 mb-1">
-                      Email Address
+                      Number of Attending Guests
                     </label>
-                    <input
-                      type="email"
-                      value={rsvpData.email}
-                      onChange={e => setRsvpData({ ...rsvpData, email: e.target.value })}
-                      placeholder="your@email.com"
-                      className="w-full text-xs px-3 py-2 rounded-xl border border-stone-200 outline-none focus:border-rose-400"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-xs font-medium text-stone-700 mb-1">
-                        Number of Attending Guests
-                      </label>
-                      <select
-                        value={rsvpData.guestCount}
-                        onChange={e => setRsvpData({ ...rsvpData, guestCount: Number(e.target.value) })}
-                        className="w-full text-xs px-3 py-2 rounded-xl border border-stone-200 outline-none focus:border-rose-400 bg-white"
-                      >
-                        <option value={1}>1 Guest (Just Me)</option>
-                        <option value={2}>2 Guests (With Plus One)</option>
-                        <option value={3}>3 Guests (Family)</option>
-                        <option value={4}>4 Guests (Family)</option>
-                        <option value={5}>5+ Guests (Full Family)</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-medium text-stone-700 mb-1">
-                        Catering Preference
-                      </label>
-                      <select
-                        value={rsvpData.foodPreference}
-                        onChange={e =>
-                          setRsvpData({
-                            ...rsvpData,
-                            foodPreference: e.target.value as 'vegetarian' | 'jain' | 'all',
-                          })
-                        }
-                        className="w-full text-xs px-3 py-2 rounded-xl border border-stone-200 outline-none focus:border-rose-400 bg-white"
-                      >
-                        <option value="vegetarian">Pure Vegetarian Feast</option>
-                        <option value="jain">Jain Vegetarian (No Onion/Garlic)</option>
-                        <option value="all">All Gourmet Awadhi Delicacies</option>
-                      </select>
-                    </div>
+                    <select
+                      value={rsvpData.guestCount}
+                      onChange={e => setRsvpData({ ...rsvpData, guestCount: Number(e.target.value) })}
+                      className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-stone-200 outline-none focus:border-rose-400 bg-white"
+                    >
+                      <option value={1}>1 Guest (Just Me)</option>
+                      <option value={2}>2 Guests (With Plus One)</option>
+                      <option value={3}>3 Guests (Family)</option>
+                      <option value={4}>4 Guests (Family)</option>
+                      <option value={5}>5+ Guests (Full Family)</option>
+                    </select>
                   </div>
 
                   {/* Events selection */}
@@ -430,7 +389,7 @@ export function GuestbookRSVP({ rsvpModalOpen, onCloseRSVP }: GuestbookRSVPProps
                         return (
                           <label
                             key={evt.id}
-                            className={`flex items-center gap-2 p-2 rounded-xl border cursor-pointer transition-colors ${
+                            className={`flex items-center gap-2 p-2.5 rounded-xl border cursor-pointer transition-colors ${
                               checked
                                 ? 'bg-rose-50 border-rose-300 text-rose-800'
                                 : 'bg-stone-50 border-stone-200 text-stone-600'
@@ -447,32 +406,6 @@ export function GuestbookRSVP({ rsvpModalOpen, onCloseRSVP }: GuestbookRSVPProps
                         );
                       })}
                     </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-medium text-stone-700 mb-1">
-                      Sangeet Song Request (Optional)
-                    </label>
-                    <input
-                      type="text"
-                      value={rsvpData.songRequest}
-                      onChange={e => setRsvpData({ ...rsvpData, songRequest: e.target.value })}
-                      placeholder="e.g. Gallan Goodiyaan / Kesariya / Mauja Hi Mauja"
-                      className="w-full text-xs px-3 py-2 rounded-xl border border-stone-200 outline-none focus:border-rose-400"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-medium text-stone-700 mb-1">
-                      Any Special Note or Dietary Requirements
-                    </label>
-                    <textarea
-                      rows={2}
-                      value={rsvpData.note}
-                      onChange={e => setRsvpData({ ...rsvpData, note: e.target.value })}
-                      placeholder="e.g. wheelchair access needed, nut allergy..."
-                      className="w-full text-xs px-3 py-2 rounded-xl border border-stone-200 outline-none focus:border-rose-400 resize-none"
-                    />
                   </div>
 
                   <div className="pt-2">
@@ -512,10 +445,6 @@ export function GuestbookRSVP({ rsvpModalOpen, onCloseRSVP }: GuestbookRSVPProps
                     <strong className="text-rose-600 font-mono">
                       {rsvpData.attendingEvents.length} ceremonies
                     </strong>
-                  </div>
-                  <div className="flex justify-between text-stone-600">
-                    <span>Catering Choice:</span>
-                    <strong className="text-stone-800 capitalize">{rsvpData.foodPreference}</strong>
                   </div>
                 </div>
 

@@ -125,7 +125,7 @@ export function Hero({ onOpenRSVP }: { onOpenRSVP: () => void }) {
                 className="inline-flex items-center gap-2 px-5 py-3 bg-white hover:bg-rose-50/50 text-stone-800 border border-stone-200 hover:border-rose-300 font-medium rounded-full shadow-xs transition-all text-sm"
               >
                 <Heart className="w-4 h-4 text-rose-500 fill-rose-500" />
-                <span>Send Blessings &amp; RSVP</span>
+                <span>RSVP</span>
               </button>
             </div>
 

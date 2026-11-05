@@ -62,7 +62,7 @@ const HOTLINE_CONTACTS: HotlineContact[] = [
 export function WeddingHotline() {
   return (
     <section id="hotlines" className="py-12 md:py-16 bg-white relative">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="text-center max-w-xl mx-auto mb-8 sm:mb-10">
@@ -78,31 +78,31 @@ export function WeddingHotline() {
           </p>
         </div>
 
-        {/* Compact & Concise Hotlines Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+        {/* Compact & Concise Hotlines Grid without truncation */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4">
           {HOTLINE_CONTACTS.map((item) => (
             <div
               key={item.id}
-              className="bg-[#FFFDFB] rounded-2xl p-4 border border-stone-200/80 hover:border-rose-200 shadow-xs hover:shadow-sm transition-all flex items-center justify-between gap-3 group"
+              className="bg-[#FFFDFB] rounded-2xl p-4 sm:p-4.5 border border-stone-200/80 hover:border-rose-200 shadow-xs hover:shadow-sm transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 group"
             >
-              {/* Contact Info */}
-              <div className="flex items-center gap-3 min-w-0">
+              {/* Contact Info (full tagline visible, no truncation) */}
+              <div className="flex items-start sm:items-center gap-3 min-w-0">
                 <div
-                  className={`w-10 h-10 rounded-xl bg-gradient-to-br ${item.avatarColor} text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-2xs`}
+                  className={`w-10 h-10 rounded-xl bg-gradient-to-br ${item.avatarColor} text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-2xs mt-0.5 sm:mt-0`}
                 >
                   {item.name.charAt(0)}
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-serif font-bold text-stone-900 text-sm sm:text-base group-hover:text-rose-600 transition-colors truncate">
+                  <h3 className="font-serif font-bold text-stone-900 text-sm sm:text-base group-hover:text-rose-600 transition-colors">
                     {item.name}
                   </h3>
-                  <p className="text-xs text-rose-600 font-medium truncate">{item.role}</p>
+                  <p className="text-xs text-rose-600 font-medium leading-snug">{item.role}</p>
                   <p className="text-[11px] text-stone-500 font-mono mt-0.5">{item.phone}</p>
                 </div>
               </div>
 
               {/* Concise Action Buttons */}
-              <div className="flex items-center gap-1.5 shrink-0">
+              <div className="flex items-center gap-1.5 shrink-0 self-end sm:self-center">
                 <a
                   href={`tel:${item.phone.replace(/\s+/g, '')}`}
                   className="flex items-center justify-center gap-1 py-1.5 px-3 bg-stone-900 hover:bg-stone-800 text-white rounded-full text-xs font-medium transition-colors shadow-2xs"

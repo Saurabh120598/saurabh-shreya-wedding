@@ -3,11 +3,9 @@ import confetti from 'canvas-confetti';
 import {
   Sparkles,
   Calendar,
-  RefreshCw,
   MapPin,
   Clock,
   Shirt,
-  Heart,
   PartyPopper,
 } from 'lucide-react';
 import { weddingAudio } from '../utils/audioPlayer';
@@ -16,6 +14,9 @@ export function ScratchInviteCard() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const lastPointRef = useRef<{ x: number; y: number } | null>(null);
+  const lastSoundTimeRef = useRef<number>(0);
+  const throttleTimerRef = useRef<number | null>(null);
+
   const [isScratchedOff, setIsScratchedOff] = useState(false);
   const [scratchPercent, setScratchPercent] = useState(0);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -27,7 +28,6 @@ export function ScratchInviteCard() {
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
     if (!ctx) return;
 
-    // Get exact CSS layout dimensions
     const width = canvas.clientWidth || canvas.offsetWidth || 400;
     const height = canvas.clientHeight || canvas.offsetHeight || 440;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -90,7 +90,7 @@ export function ScratchInviteCard() {
     ctx.lineWidth = 1.5;
     ctx.stroke();
 
-    // Perfectly centered Foil Typography
+    // Centered Foil Typography
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
@@ -139,78 +139,7 @@ export function ScratchInviteCard() {
     };
   }, [initCanvas, isScratchedOff]);
 
-  // Scratch action with wide brush and continuous line support
-  const scratch = (clientX: number, clientY: number) => {
-    const canvas = canvasRef.current;
-    if (!canvas || isScratchedOff) return;
-    const ctx = canvas.getContext('2d', { willReadFrequently: true });
-    if (!ctx) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
-
-    ctx.globalCompositeOperation = 'destination-out';
-    ctx.lineWidth = 64; // Wide brush to easily clear large areas
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-
-    if (lastPointRef.current) {
-      ctx.beginPath();
-      ctx.moveTo(lastPointRef.current.x, lastPointRef.current.y);
-      ctx.lineTo(x, y);
-      ctx.stroke();
-    } else {
-      ctx.beginPath();
-      ctx.arc(x, y, 32, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    lastPointRef.current = { x, y };
-
-    weddingAudio.playScratchSound();
-    checkScratchPercentage();
-  };
-
-  const checkScratchPercentage = () => {
-    const canvas = canvasRef.current;
-    if (!canvas || isScratchedOff) return;
-    const ctx = canvas.getContext('2d', { willReadFrequently: true });
-    if (!ctx) return;
-
-    const width = canvas.width;
-    const height = canvas.height;
-    const sampleStep = 18;
-    let transparentCount = 0;
-    let totalSamples = 0;
-
-    try {
-      const imgData = ctx.getImageData(0, 0, width, height);
-      const data = imgData.data;
-
-      for (let y = 0; y < height; y += sampleStep) {
-        for (let x = 0; x < width; x += sampleStep) {
-          const index = (y * width + x) * 4 + 3; // Alpha channel
-          if (data[index] < 128) {
-            transparentCount++;
-          }
-          totalSamples++;
-        }
-      }
-
-      const percent = Math.min(100, Math.round((transparentCount / totalSamples) * 100));
-      setScratchPercent(percent);
-
-      // Fast reveal trigger at ~30% scratched
-      if (percent >= 30 && !isScratchedOff) {
-        revealCard();
-      }
-    } catch {
-      // Ignore security constraints
-    }
-  };
-
-  const revealCard = () => {
+  const revealCard = useCallback(() => {
     setIsScratchedOff(true);
     setScratchPercent(100);
     lastPointRef.current = null;
@@ -223,40 +152,115 @@ export function ScratchInviteCard() {
       origin: { y: 0.6 },
       colors: ['#FFB6C1', '#FF69B4', '#FFD700', '#F4A261', '#FFF176'],
     });
+  }, []);
+
+  // Lightweight & fast scratch calculation
+  const checkScratchPercentage = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || isScratchedOff) return;
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    if (!ctx) return;
+
+    const width = canvas.width;
+    const height = canvas.height;
+    const sampleStep = 28; // Fast sampling stride
+    let transparentCount = 0;
+    let totalSamples = 0;
+
+    try {
+      const imgData = ctx.getImageData(0, 0, width, height);
+      const data = imgData.data;
+
+      for (let y = 0; y < height; y += sampleStep) {
+        for (let x = 0; x < width; x += sampleStep) {
+          const index = (y * width + x) * 4 + 3;
+          if (data[index] < 128) {
+            transparentCount++;
+          }
+          totalSamples++;
+        }
+      }
+
+      const percent = Math.min(100, Math.round((transparentCount / totalSamples) * 100));
+      setScratchPercent(percent);
+
+      // Fast auto-reveal trigger at 20% scratched
+      if (percent >= 20 && !isScratchedOff) {
+        revealCard();
+      }
+    } catch {
+      // Ignore security constraints
+    }
+  }, [isScratchedOff, revealCard]);
+
+  // High-performance direct scratch action
+  const scratch = (clientX: number, clientY: number) => {
+    const canvas = canvasRef.current;
+    if (!canvas || isScratchedOff) return;
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    if (!ctx) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const x = (clientX - rect.left) * scaleX;
+    const y = (clientY - rect.top) * scaleY;
+
+    ctx.save();
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.lineWidth = 75 * (scaleX / 1.5); // Wide, responsive clearing brush
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    if (lastPointRef.current) {
+      ctx.beginPath();
+      ctx.moveTo(lastPointRef.current.x, lastPointRef.current.y);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+    } else {
+      ctx.beginPath();
+      ctx.arc(x, y, 38 * (scaleX / 1.5), 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+
+    lastPointRef.current = { x, y };
+
+    // Throttled sound effect
+    const now = Date.now();
+    if (now - lastSoundTimeRef.current > 160) {
+      weddingAudio.playScratchSound();
+      lastSoundTimeRef.current = now;
+    }
+
+    // Throttled check percentage to keep 60fps buttery smooth
+    if (!throttleTimerRef.current) {
+      throttleTimerRef.current = window.setTimeout(() => {
+        throttleTimerRef.current = null;
+        checkScratchPercentage();
+      }, 100);
+    }
   };
 
-  // Touch and mouse handlers
-  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  // Pointer event handlers (mouse & touch unified)
+  const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    e.currentTarget.setPointerCapture(e.pointerId);
     setIsDrawing(true);
     lastPointRef.current = null;
     scratch(e.clientX, e.clientY);
   };
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
     if (!isDrawing) return;
     scratch(e.clientX, e.clientY);
   };
 
-  const handleMouseUp = () => {
-    setIsDrawing(false);
-    lastPointRef.current = null;
-    checkScratchPercentage();
-  };
-
-  const handleTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
-    if (e.touches.length > 0) {
-      setIsDrawing(true);
-      lastPointRef.current = null;
-      scratch(e.touches[0].clientX, e.touches[0].clientY);
+  const handlePointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {
+      // Ignore
     }
-  };
-
-  const handleTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
-    if (!isDrawing || e.touches.length === 0) return;
-    scratch(e.touches[0].clientX, e.touches[0].clientY);
-  };
-
-  const handleTouchEnd = () => {
     setIsDrawing(false);
     lastPointRef.current = null;
     checkScratchPercentage();
@@ -269,7 +273,6 @@ export function ScratchInviteCard() {
       'Join us to celebrate the holy wedding ceremony of Saurabh Srivastava and Shreya!\nDress Code: Royal Pastel Ethnic / Festive Indian\nVenue: Bundigarh Resort, Shaheed Path, Lucknow'
     );
     const location = encodeURIComponent('Bundigarh Resort, Shaheed Path, Lucknow, Uttar Pradesh');
-    // Dec 9, 2026, 20:00 IST to Dec 10, 2026, 01:00 IST
     const dates = '20261209T143000Z/20261209T193000Z';
     return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&location=${location}&dates=${dates}`;
   };
@@ -396,13 +399,10 @@ export function ScratchInviteCard() {
                 <canvas
                   ref={canvasRef}
                   className="absolute inset-0 w-full h-full cursor-crosshair touch-none select-none z-20"
-                  onMouseDown={handleMouseDown}
-                  onMouseMove={handleMouseMove}
-                  onMouseUp={handleMouseUp}
-                  onMouseLeave={handleMouseUp}
-                  onTouchStart={handleTouchStart}
-                  onTouchMove={handleTouchMove}
-                  onTouchEnd={handleTouchEnd}
+                  onPointerDown={handlePointerDown}
+                  onPointerMove={handlePointerMove}
+                  onPointerUp={handlePointerUp}
+                  onPointerCancel={handlePointerUp}
                 />
               )}
 
@@ -436,12 +436,12 @@ export function ScratchInviteCard() {
               )}
 
               {/* Action Buttons for the Card */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1 text-xs">
                 <a
                   href={getGoogleCalendarUrl()}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-stone-900 hover:bg-stone-800 text-white rounded-xl font-medium transition-colors"
+                  className="flex items-center justify-center gap-1.5 py-2.5 px-4 bg-stone-900 hover:bg-stone-800 text-white rounded-xl font-medium transition-colors shadow-2xs"
                 >
                   <Calendar className="w-3.5 h-3.5" />
                   <span>Add to Calendar</span>
@@ -451,20 +451,11 @@ export function ScratchInviteCard() {
                   href="https://maps.google.com/?q=Bundigarh+Resort+Shaheed+Path+Lucknow"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-white hover:bg-rose-50 text-stone-800 border border-stone-200 hover:border-rose-300 rounded-xl font-medium transition-colors"
+                  className="flex items-center justify-center gap-1.5 py-2.5 px-4 bg-white hover:bg-rose-50 text-stone-800 border border-stone-200 hover:border-rose-300 rounded-xl font-medium transition-colors shadow-2xs"
                 >
                   <MapPin className="w-3.5 h-3.5 text-amber-600" />
                   <span>View Map</span>
                 </a>
-
-                <button
-                  type="button"
-                  onClick={initCanvas}
-                  className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl font-medium transition-colors"
-                >
-                  <RefreshCw className="w-3.5 h-3.5" />
-                  <span>Scratch Again</span>
-                </button>
               </div>
 
             </div>
