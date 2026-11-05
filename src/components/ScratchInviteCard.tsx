@@ -184,8 +184,8 @@ export function ScratchInviteCard() {
       const percent = Math.min(100, Math.round((transparentCount / totalSamples) * 100));
       setScratchPercent(percent);
 
-      // Auto-reveal trigger after scratching more than 60% (set to 65%)
-      if (percent >= 65 && !isScratchedOff) {
+      // Auto-reveal trigger at 45% scratched
+      if (percent >= 45 && !isScratchedOff) {
         revealCard();
       }
     } catch {
