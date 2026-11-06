@@ -13,10 +13,8 @@ import {
   MessageSquareHeart,
   Camera,
   Calendar,
-  Utensils,
   Music,
   Phone,
-  Mail,
   Clock,
   Heart,
   LogOut,
@@ -30,10 +28,8 @@ interface RSVPEntry {
   createdAt: string;
   name: string;
   phone: string;
-  email: string;
   guestCount: number;
   attendingEvents: string[];
-  foodPreference: string;
   songRequest?: string;
   note?: string;
 }
@@ -75,11 +71,10 @@ const EVENT_LABELS: Record<string, string> = {
 
 // ── Export to CSV ─────────────────────────────────────────────────────────────
 function exportCSV(rsvpList: RSVPEntry[]) {
-  const header = ['Name', 'Phone', 'Email', 'Guests', 'Events', 'Food', 'Song Request', 'Note', 'Submitted'];
+  const header = ['Name', 'Phone', 'Guests', 'Events', 'Song Request', 'Note', 'Submitted'];
   const rows = rsvpList.map(r => [
-    r.name, r.phone, r.email || '', r.guestCount,
+    r.name, r.phone, r.guestCount,
     r.attendingEvents.join(' | '),
-    r.foodPreference,
     r.songRequest || '',
     r.note || '',
     r.createdAt,
@@ -155,10 +150,8 @@ export function AdminDashboard() {
         createdAt: tsToStr(d.data().createdAt as Timestamp),
         name: d.data().name,
         phone: d.data().phone,
-        email: d.data().email || '',
         guestCount: d.data().guestCount,
         attendingEvents: d.data().attendingEvents || [],
-        foodPreference: d.data().foodPreference,
         songRequest: d.data().songRequest,
         note: d.data().note,
       })));
@@ -347,16 +340,12 @@ export function AdminDashboard() {
                         <h3 className="font-serif font-bold text-lg text-stone-900">{r.name}</h3>
                         <div className="flex flex-wrap gap-3 mt-2 text-xs text-stone-500">
                           <span className="flex items-center gap-1"><Phone className="w-3 h-3"/>{r.phone}</span>
-                          {r.email && <span className="flex items-center gap-1"><Mail className="w-3 h-3"/>{r.email}</span>}
                           <span className="flex items-center gap-1"><Clock className="w-3 h-3"/>{r.createdAt}</span>
                         </div>
                       </div>
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="px-3 py-1 bg-rose-50 text-rose-700 rounded-full text-xs font-semibold border border-rose-100">
                           👥 {r.guestCount} guest{r.guestCount > 1 ? 's' : ''}
-                        </span>
-                        <span className="px-3 py-1 bg-amber-50 text-amber-700 rounded-full text-xs font-semibold border border-amber-100 capitalize">
-                          <Utensils className="w-3 h-3 inline mr-1"/>{r.foodPreference}
                         </span>
                       </div>
                     </div>

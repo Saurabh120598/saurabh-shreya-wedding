@@ -45,11 +45,9 @@ export interface GuestWish {
 
 export interface RSVPSubmission {
   name: string;
-  email: string;
   phone: string;
   guestCount: number;
   attendingEvents: string[];
-  foodPreference: 'vegetarian' | 'jain' | 'all';
   songRequest?: string;
   note?: string;
 }

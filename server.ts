@@ -35,11 +35,9 @@ interface RSVPEntry {
   id: string;
   submittedAt: string;
   name: string;
-  email: string;
   phone: string;
   guestCount: number;
   attendingEvents: string[];
-  foodPreference: string;
   songRequest?: string;
   note?: string;
 }
@@ -87,11 +85,9 @@ app.post('/api/rsvp', (req: Request, res: Response) => {
     id: `rsvp-${Date.now()}`,
     submittedAt: new Date().toISOString(),
     name: String(req.body.name).trim(),
-    email: String(req.body.email || '').trim(),
     phone: String(req.body.phone).trim(),
     guestCount: Number(req.body.guestCount) || 1,
     attendingEvents: Array.isArray(req.body.attendingEvents) ? req.body.attendingEvents : [],
-    foodPreference: String(req.body.foodPreference || 'vegetarian'),
     songRequest: String(req.body.songRequest || '').trim() || undefined,
     note: String(req.body.note || '').trim() || undefined,
   };
@@ -220,20 +216,13 @@ app.get('/admin', (req: Request, res: Response) => {
     eventTally[e] = (eventTally[e] || 0) + r.guestCount;
   }));
 
-  const foodTally: Record<string, number> = {};
-  rsvpList.forEach(r => {
-    foodTally[r.foodPreference] = (foodTally[r.foodPreference] || 0) + r.guestCount;
-  });
-
   const rsvpRows = rsvpList.map(r => `
     <tr>
       <td>${new Date(r.submittedAt).toLocaleString('en-IN')}</td>
       <td><strong>${esc(r.name)}</strong></td>
       <td>${esc(r.phone)}</td>
-      <td>${esc(r.email || '—')}</td>
       <td style="text-align:center">${r.guestCount}</td>
       <td>${r.attendingEvents.join(', ')}</td>
-      <td>${esc(r.foodPreference)}</td>
       <td>${esc(r.songRequest || '—')}</td>
       <td>${esc(r.note || '—')}</td>
     </tr>`).join('');
@@ -295,7 +284,6 @@ tr:hover td{background:#fffdf9}
     <div class="stat"><div class="num">${wishesList.length}</div><div class="lbl">Wishes Posted</div></div>
     <div class="stat"><div class="num">${photosList.length}</div><div class="lbl">Guest Photos Uploaded</div></div>
     <div class="stat"><div class="num">${eventTally['wedding'] || 0}</div><div class="lbl">Wedding Attendees</div></div>
-    <div class="stat"><div class="num">${foodTally['vegetarian'] || 0}</div><div class="lbl">Vegetarian Guests</div></div>
   </div>
 
   <!-- RSVP Table -->
@@ -303,8 +291,8 @@ tr:hover td{background:#fffdf9}
   ${rsvpList.length === 0 ? '<div class="empty">No RSVPs yet</div>' : `
   <div style="overflow-x:auto"><table>
     <thead><tr>
-      <th>Submitted</th><th>Name</th><th>Phone</th><th>Email</th>
-      <th>Guests</th><th>Events</th><th>Food</th><th>Song Request</th><th>Note</th>
+      <th>Submitted</th><th>Name</th><th>Phone</th>
+      <th>Guests</th><th>Events</th><th>Song Request</th><th>Note</th>
     </tr></thead>
     <tbody>${rsvpRows}</tbody>
   </table></div>`}

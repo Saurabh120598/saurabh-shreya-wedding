@@ -55,11 +55,9 @@ export async function compressImage(dataUrl: string, maxKB = 450): Promise<strin
 // ════════════════════════════════════════════════════════════════════
 export interface RSVPPayload {
   name: string;
-  email: string;
   phone: string;
   guestCount: number;
   attendingEvents: string[];
-  foodPreference: string;
   songRequest?: string;
   note?: string;
 }

@@ -110,11 +110,9 @@ export function GuestbookRSVP({ rsvpModalOpen, onCloseRSVP }: GuestbookRSVPProps
     try {
       await submitRSVP({
         name: rsvpData.name,
-        email: '',
         phone: rsvpData.phone,
         guestCount: rsvpData.guestCount,
         attendingEvents: rsvpData.attendingEvents,
-        foodPreference: '',
       });
       setRsvpSubmitted(true);
       weddingAudio.playChime();
