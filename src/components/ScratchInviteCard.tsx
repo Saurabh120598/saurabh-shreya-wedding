@@ -18,7 +18,6 @@ export function ScratchInviteCard({ onReveal }: { onReveal?: () => void }) {
   const throttleTimerRef = useRef<number | null>(null);
 
   const [isScratchedOff, setIsScratchedOff] = useState(false);
-  const [scratchPercent, setScratchPercent] = useState(0);
   const [isDrawing, setIsDrawing] = useState(false);
 
   // Initialize and paint scratch card canvas
@@ -105,7 +104,6 @@ export function ScratchInviteCard({ onReveal }: { onReveal?: () => void }) {
     ctx.restore();
 
     setIsScratchedOff(false);
-    setScratchPercent(0);
     lastPointRef.current = null;
   }, []);
 
@@ -129,7 +127,6 @@ export function ScratchInviteCard({ onReveal }: { onReveal?: () => void }) {
 
   const revealCard = useCallback(() => {
     setIsScratchedOff(true);
-    setScratchPercent(100);
     lastPointRef.current = null;
     onReveal?.();
     weddingAudio.playChime();
@@ -171,7 +168,6 @@ export function ScratchInviteCard({ onReveal }: { onReveal?: () => void }) {
       }
 
       const percent = Math.min(100, Math.round((transparentCount / totalSamples) * 100));
-      setScratchPercent(percent);
 
       // Auto-reveal trigger at 30% scratched
       if (percent >= 30 && !isScratchedOff) {
@@ -404,9 +400,7 @@ export function ScratchInviteCard({ onReveal }: { onReveal?: () => void }) {
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-rose-50/70 p-3 rounded-2xl border border-rose-100 text-xs">
                   <div className="flex items-center gap-2 text-stone-700">
                     <Sparkles className="w-4 h-4 text-rose-500" />
-                    <span>
-                      Scratch Progress: <strong className="text-rose-600 font-mono">{scratchPercent}%</strong>
-                    </span>
+                    <span>Scratch to reveal your invitation</span>
                   </div>
                   <button
                     type="button"

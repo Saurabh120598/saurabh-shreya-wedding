@@ -240,8 +240,8 @@ export function Hero({ onOpenRSVP }: { onOpenRSVP: () => void }) {
 
                     {/* Floating stamp on the active front card */}
                     {isActive && (
-                      <div className="absolute -top-3 -right-2 sm:-right-3 bg-amber-100 border border-amber-300 text-amber-900 text-[11px] font-semibold uppercase tracking-wider px-3 py-1 rounded-full shadow-sm rotate-6 flex items-center gap-1 z-40">
-                        ✨ Saurabh Weds Shreya
+                      <div className="absolute -top-3 -right-2 sm:-right-3 bg-amber-100 border border-amber-300 text-amber-900 text-[11px] font-semibold tracking-wide px-3 py-1 rounded-full shadow-sm rotate-6 flex items-center gap-1 z-40">
+                        ✨ #SaurabhKiShreya
                       </div>
                     )}
                   </div>

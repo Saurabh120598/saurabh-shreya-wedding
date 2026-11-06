@@ -18,12 +18,13 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#FFFDF9] text-[#2D2A26] selection:bg-rose-200 selection:text-rose-900 font-sans relative isolate">
       {/* Site-wide background (fixed layer works on desktop & mobile, unlike background-attachment: fixed on iOS).
-          Arch on true desktop; terrace on mobile (portrait, and mobile "desktop site" mode). */}
-      <div className="fixed inset-0 -z-10 pointer-events-none" aria-hidden="true">
+          Image is picked by screen orientation so it matches its native aspect ratio:
+          landscape (desktop) -> terrace 16:9, portrait (phones, incl. desktop-site mode) -> arch 9:16. */}
+      <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden" aria-hidden="true">
         <picture className="block w-full h-full">
-          <source media="(min-width: 1024px) and (pointer: fine)" srcSet={archBg} />
+          <source media="(orientation: landscape)" srcSet={terraceBg} />
           <img
-            src={terraceBg}
+            src={archBg}
             alt=""
             className="w-full h-full object-cover object-center"
           />
